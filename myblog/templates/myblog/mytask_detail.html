@@ -1,0 +1,24 @@
+{% extends "blogpost_base.html" %} 
+{% load comments %}
+<div class="mypost">
+	{% block heading %}
+		<div class="container">
+			<div class="post-heading">
+				<h1 class="post-title">{{ mytask.title }}</h1>
+			</div>
+		</div>
+	{% endblock %}
+
+	{% block postlist %}	
+		<div class="post-content">
+			<p>{{ mytask.description }}</p>
+		</div>
+		<div class="post-footer">
+			<div class="post_author">{{ mytask.author }}</div>
+			<div class="post_date">{{ mytask.date_add }}</div>
+		</div>
+	{% endblock %}
+</div>		
+
+
+

@@ -1,0 +1,22 @@
+﻿{% extends "blogpost_base.html" %}
+
+{% block heading %}
+<div class="container">
+	<div class="post-heading">
+		<h1 class="post-title">Создание/правка записи</h1>
+	</div>
+</div>
+{% endblock %}
+
+{% block postlist %}	
+		<form method="POST" class="post-form">
+			{% csrf_token %}
+			 {{ form.as_p }}
+			<div class="text-right">
+			<button type="submit" name="my_publish" class="save btn btn-success">Опубликовать</button>
+			<button type="submit" name="my_save" class="save btn btn-info">Сохранить</button>
+			<button type="submit" name="my_return" class="save btn btn-danger">Отменить</button>
+			</div>
+		</form>
+{% endblock %}
+	

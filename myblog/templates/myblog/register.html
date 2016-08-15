@@ -1,0 +1,28 @@
+{% extends "myblog/blogpost_base.html" %}
+
+{% block auth %}
+<div class="auth-wrapper">
+	<div class="auth-content">
+        <form method="post" autocomplete="off">
+            {% csrf_token %}
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-user"></span></span>
+				<input class="form-control" type="text" name="username" value="" size="50" placeholder="Username"  required />
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-pencil"></span></span>
+				<input class="form-control" type="password" name="password" value="" size="50" placeholder="password" required/>
+			</div>
+			<div class="input-group">
+				<span class="input-group-addon" id="basic-addon1">@</span>
+				<input  class="form-control" type="email" name="email" value="" size="50" placeholder="Email" required/>
+			</div>			
+            <button class="btn btn-success">Готово!</button>
+        </form>
+	</div>
+</div>
+{% endblock %}
+
+{% block post-sider %}
+
+{% endblock %}

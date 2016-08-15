@@ -1,0 +1,656 @@
+<!DOCTYPE html> 
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    
+	{% load staticfiles %}
+	{% load thumbnail %}
+    <!-- Bootstrap -->
+    <link href= "{% static "imagepool/css/bootstrap.min.css" %}" rel="stylesheet">
+	
+	<style type="text/css">
+	/*---------------------Base---------------------*/						
+			html {
+				height:100%;
+				position:relative;
+			}
+			
+			body {
+				height:100%;
+				position:relative;
+			}
+			
+			.flex-wrapper {
+				padding: 0;
+				display: flex;
+				flex-flow: column nowrap;
+				height: 100%;
+				justify-content:space-between;
+			}
+			.side-btns{
+				display:flex;
+				flex-flow:row nowrap;
+				position:fixed;
+				left:0px;
+				top:50%;
+			}
+			.edit_btns{
+				display:flex;
+				flex-flow:column nowrap;
+			}
+			
+			
+			.show_add_post{
+				background-color:navy;
+				color:white;
+				width:20px;
+				height:40px;
+				padding-top:13px;
+				border-radius:0 15px 15px 0;
+			}
+			.addpost {
+				background-color:navy;
+				color:white;
+				display:none;
+				width:40px;
+				height:40px;
+				text-align:center;
+				padding-top:13px;
+			}
+			.mydrafts {
+				background-color:navy;
+				color:white;
+				display:none;
+				width:40px;
+				height:40px;
+				text-align:center;
+				padding-top:13px;				
+			}
+			
+	/*---------------------Login/Register---------------------*/						
+			.auth-wrapper {
+				display:flex;
+				flex-flow: column nowrap;
+				justify-content:center;
+				align-items:center;
+				flex: 1 1 auto;
+				order:4;
+			}
+			
+			.auth-content {
+				flex: 1 1 100%;
+				text-align:center;
+				--border: 1px solid;
+			}
+			
+			.auth-content .input-group {
+				padding:10px;
+			}
+			
+	/*---------------------Navbar---------------------*/			
+			.navbar {
+				margin-bottom:0px; !important
+				flex: 0 1 auto;
+				
+				width:100%;
+				order: 0;
+			}
+			.navbar-header {
+				width:100%;
+			}
+	
+	/*---------------------Carousel---------------------*/			
+			.carousel {
+				height: 300px;
+				margin-bottom: 10px;
+				flex: 0 1 auto;
+				order: 1;				
+			}
+
+			.carousel-caption {
+				z-index: 10;
+			}
+
+			.carousel .item {
+				height: 300px;
+				background-color: #777;
+			}
+			
+			.carousel-inner > .item > img {
+				position: absolute;
+				top: 0;
+				left: 0;
+				min-width: 100%;
+				height: 300px;
+			}
+	/*---------------------Post list---------------------*/	
+			
+			.flex-main {
+				flex: 1 0 auto;
+				margin-left: 0px;
+				margin-right: 0px;
+				order: 4;
+			}
+
+			.comment-count{
+				background-color:#efefef;
+				border-radius: 5px;
+			}	
+			
+			.list-post-footer{
+				border-bottom: 1px solid #e6e6e6;
+			}
+			
+			section {
+				--border: 1px solid lightgreen;
+				--border-radius:10px;
+				
+			}
+			aside {
+				
+			}
+	
+	/*---------------------Post---------------------*/	
+			.mypost{
+				flex: 1 1 auto;
+				order: 1;			
+			}
+			.post-heading {
+				margin-top:10px;
+				margin-bottom:10px;
+				background-color: #f8f8f8;
+				padding: 0 5px;
+				display:flex;
+				flex-flow: row nowrap;
+				align-items:center;
+			}
+			.post-title {
+				flex: 1 1 auto;
+				padding: 0 20px;
+				margin-top:10px; !important
+			}
+			.post-edit {
+				flex: 0 1 auto;
+			}
+			.post-edit .btn{
+				margin: 0 5px;
+			}
+			.post-rate{
+				flex: 0 1 auto;
+				display:flex;
+				flex-flow:column nowrap;
+				align-items: center;
+				justify-content:center;
+			}
+			.btn-vote-down, .btn-vote-up {
+				color:#777;
+			}
+			.btn-vote-down hover, .btn-vote-up hover {
+				color:black;
+			}
+			.post-content {
+				padding:20px;
+			}
+			.post-footer{
+				margin: 10px 0;
+				border-top:1px solid;
+				border-bottom:1px solid;
+				border-color:#bfbfbf;
+				padding:20px;
+				font: normal 12px/12px 'Arial', sans-serif;
+				display:flex;
+				flex-flow: row nowrap;
+				align-items:center;
+			}
+			.post-footer .post_author {
+				flex: 1 1 auto;
+				text-align:left;
+			}
+			.post-footer .post_date {
+				flex: 1 1 auto;
+				text-align:right;
+			}
+		/*---------------------Post Tags---------------------*/	
+			.post-tags{
+				display:flex;
+				flex-flow: row nowrap;
+				padding: 5px 20px;
+				justify-content: flex-end;
+			}
+			.post-tag{
+				margin: 0 2px;
+				padding:2px 5px;
+				font: 12px black;
+				background-color: #e0e0eb;
+				border-radius: 5px;
+			}
+		/*---------------------Post comments---------------------*/	
+			.post-comment-form {
+				background-color:#ffcccc;
+				border-radius: 10px;
+				padding: 5px;
+			}
+			.post-comment-form button{
+				margin-top:10px;
+			}
+			.post-comment {
+				display:flex;
+				flex-flow: row wrap;
+				align-items:center;
+			}
+			.comment-author {
+				flex: 1 auto;
+				order:1;
+				text-align:center;
+				width: 100px;
+			}
+			.comment-body {
+				flex: 13 auto;
+				background-color:lightgreen;
+				border-radius:5px;
+				padding:10px;
+				order:2;
+				max-width:600px;
+			}
+			.comment-date {
+				flex: 1 100%;
+				order:3;
+				text-align:right;
+				font: normal 12px/12px 'Arial', sans-serif;
+				padding:5px;
+			}
+	/*---------------------Edit post---------------------*/					
+			
+			#deletemodal {
+				margin:50px;
+				text-align:center;
+			}
+			
+	/*---------------------Footer---------------------*/	
+			footer{
+				height:40px;
+				min-height:30px;
+				background-color: #efefef;
+				flex: 0 1 auto;
+				text-align:center;
+				order: 7;
+				display:flex;
+				width:100%;
+				flex-flow: column nowrap;
+				justify-content:center;
+			}
+			
+			footer p {
+				margin-bottom:0px;
+			}
+			 
+			.totop {
+				height:20px;
+				width:100%;
+				flex: 0 1 auto;
+				text-align: center;
+				order: 6;
+			}
+			.btntop {
+				border-radius: 50px 50px 0px 0px;
+				background-color: #efefef;
+				margin: 0 auto;
+				border-style:none;
+				color:#777;
+				display:none;
+			}
+			
+			.btntop hover {
+				color:black;
+			}
+	/*---------------------Task Sider---------------------*/
+			aside {
+				border-left: 1px solid #e6e6e6;
+				--border-radius:10px;
+			}
+			.side-header{
+				text-align:center;
+				background-color:#e6e6e6;
+				margin-left: 0px;
+				padding: 10px;
+			}
+			.task-list {
+				padding-left:10px;
+				--border-left: 1px solid #e6e6e6;
+			}
+			.task-list li {
+				padding: 5px 0;
+			}
+			.task-btns .glyphicon-ok{
+				color:green;
+			}
+			.task-btns .glyphicon-remove{
+				color:red;
+			}
+			.task{
+				display:flex;
+				flex-flow:row nowrap;			
+			}
+			.task-title {
+				flex: 1 1 85%;
+			}
+			.task-btns {
+				flex: 1 1 15%;
+			}
+			.completed{
+				color:green;
+			}
+			.deleted {
+				color:grey;
+				text-decoration:line-through;
+			}
+			
+	/*---------------------Image List---------------------*/
+			.image-list{
+				display:none;
+			}
+			.image-body{
+				height:auto;
+				max-width:160px;
+			}
+			
+			.image-obj{
+				width:160px;
+				max-width:160px;
+				background-color: white;
+				box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+				margin: 0 10px 20px 10px;
+				flex: 0 0 auto;
+			}
+			.image-title{
+				text-align:center;
+				padding:15px;
+			}
+	
+			.tab-heading {
+				margin-top:10px;
+				margin-bottom:10px;
+				background-color: #f8f8f8;
+				display:flex;
+				flex-flow: row nowrap;
+				overflow: hidden;
+				text-align:center;
+			}
+			
+			.tablinks {
+				flex: 1 1 auto;
+				color: black;
+				padding: 14px 16px;
+				text-decoration: none;
+				transition: 0.3s;
+				font-size: 17px;
+				outline: 0;
+			}
+			
+			.tablinks:link {
+				text-decoration: none;
+				outline: 0;
+			}
+			
+			
+			.tablinks.galery.is-active {
+				flex-grow:2;
+			}
+			
+			.tablinks.album.is-active {
+				flex-grow:2;
+			}			
+			
+			.tablinks:hover{
+				background-color:#e6e6e6; ;
+				outline: 0;
+			}
+			
+			.tablinks:focus{
+				background-color:#d9d9d9 ;
+				outline: 0;
+			}
+			.tablinks.is-active{
+				background-color:#d9d9d9 ;
+			}
+			.image-list.is-active{
+				display: flex;
+				flex-flow: row wrap;
+				align-items:center;
+				justify-content: center;
+				animation: fadeEffect 1s;
+			}
+			
+			@keyframes fadeEffect {
+				from {opacity: 0;}
+				to {opacity: 1;}
+			}
+			
+			
+			.upload {
+				background-color:navy;
+				color:white;
+				display:none;
+				width:40px;
+				height:40px;
+				text-align:center;
+				padding-top:13px;			
+				
+	/*---------------------Image Detail---------------------*/
+			.image-detail{
+				text-align:center;
+			}
+			.image-next, .image-prev {
+				color: #777;
+				height: auto;
+			}
+			.image-next:hover,.image-prev:hover {
+				color: black;
+				height: auto;
+			}
+			.disabled {
+				color: #777;
+			}				
+			
+	/*---------------------Image Upload---------------------*/		
+	
+			.upload-box {
+				border: 1px dashed lightgreen;
+				font-size: 18px;
+				flex: 1 0 auto;
+				min-height:300px;
+				background: #f8f8f8;
+				color:#777;
+				display:flex;
+				flex-flow: column nowrap;
+				align-items:center;
+				justify-content:center;
+			}
+			.upload-box.hover {
+				background: #e6e6e6;
+			}
+			
+			.upload-box.error {
+				background: #faa;
+				border-color: #f00;
+			}
+
+			.upload-box.drop {
+				background: #afa;
+				border-color: #0f0;
+			}
+			
+			.upload-box-form{
+				text-align:center;
+			}
+			
+			.upload-box-button {
+				margin: 5px auto;
+			}
+			
+			.upload_input_container{
+			    overflow: hidden;
+				position: relative;
+				padding:5px 10px;
+				border-radius: 10px;
+				background-color: #ccffcc;
+				cursor: pointer;
+				font-weight: normal;
+			}
+			
+			.upload_input_container:hover{
+				background-color: lightgreen;
+			}
+			
+			.upload_input_container input[type=file]{
+				cursor: inherit;
+				display: block;
+				font-size: 999px;
+				filter: alpha(opacity=0);
+				min-height: 100%;
+				min-width: 100%;
+				opacity: 0;
+				position: absolute;
+				right: 0;
+				text-align: right;
+				top: 0;
+			}
+			
+			.image-upload-progress {
+				height:4px;
+				background-color:#f8f8f8;
+			}
+			.image-upload-progress-bar {
+				height:4px;
+				background-color:blue;
+				width:0%;
+			}
+			
+			
+			.upload-box p, .upload-box label {
+				position: relative;
+			}
+			
+			.uploaded-file {
+				z-index:10;
+				position:absolute;
+			}
+			
+	</style>
+	<title>Test</title>
+	
+</head>
+<body>
+
+<div class="flex-wrapper">
+	<nav class="navbar navbar-default"> 
+	{% block header %}
+		<div class="container">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="{% url 'list' %}">Logo + site pic</a>
+				<a class="navbar-text navbar-left" href="{% url 'image_index' %}">Gallery</a>
+				<p class="navbar-text navbar-left">Menu2</p>
+				<p class="navbar-text navbar-left">Menu3</p>
+				
+				{% if not user.is_authenticated %}
+					<span class="navbar-text pull-right">
+						<a href="{% url 'login' %}">Войдите</a> 
+						 или 
+						<a href="{% url 'register' %}">Зарегистрируйтесь</a>
+					</span>
+				{% else %}
+					<ul class="nav navbar-nav pull-right navbar-text">
+						<a>Welcome, {{ user.get_username }}</a>
+						<span class="glyphicon glyphicon-option-vertical"></span>
+						<a href="{% url 'myblog.views.logout_user' %}">Выйти</a>
+					</ul>
+				{% endif %}
+			</div>
+		</div>	
+	{% endblock %}	
+	</nav>
+	
+	
+	<div class="container">
+		{% block image-list-type-selector %}
+
+		{% endblock %}
+		
+		{% block image-detail-header %}
+		
+		{% endblock %}
+	</div>
+	<div class="row flex-main">
+		<div class="container">
+		{% block image-list-bar %}
+	
+		{% endblock %}
+		
+		{% block image-detail_body %}
+		
+		{% endblock %}
+		</div>
+	</div>
+
+	<div class="totop">
+		<button type="button" class="btn btn-default btn-xs btntop">
+			<span class="glyphicon glyphicon-chevron-up" aria-hidden="true"></span>
+		</button>
+	</div>
+	<footer>
+		<p class="text-muted">Йа футер</p>
+	</footer>	
+	
+	<div class="side-btns">
+		<div class="edit_btns">
+			<a class="upload glyphicon glyphicon-cloud-upload" href="{% url 'image_upload'%}"></a>
+		</div>
+		<a class='show_add_post glyphicon glyphicon-chevron-right'></a>
+	</div>	
+</div>	
+    
+<script src= "{% static 'imagepool/js/bootstrap.min.js' %}"> </script>
+
+{% block image-js-all %}
+	<script type="text/javascript">
+		//https://jsfiddle.net/jqrp01ne/ - пример кнопки перехода в начало
+		$(document).ready(function(){
+			$(window).scroll(function(){
+				if ($(window).scrollTop() > 0) { //Get the current vertical position of the scroll bar for the first element in the set of matched elements or set the vertical position of the scroll bar for every matched element.
+					$('.btntop').fadeIn();
+					
+				} else {
+					
+					$('.btntop').fadeOut();
+				}
+			});
+
+			$('.btntop').click(function(){
+				$('html, body').animate({scrollTop : 0},800);
+				return false;
+			});
+		});
+	</script>
+
+	<script type="text/javascript">
+		$(".show_add_post").click(function(){
+			$(".upload").animate({width:"toggle"});
+			$(".show_add_post").toggleClass("glyphicon-chevron-right glyphicon-chevron-left");
+		});
+	</script>
+{% endblock %}
+
+{% block image-list-js %}
+
+{% endblock %}
+
+{% block image-upload-js %}
+
+{% endblock %}	
+
+</body>
+</html>
+ 

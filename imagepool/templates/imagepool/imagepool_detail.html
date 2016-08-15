@@ -1,0 +1,32 @@
+{% extends "imagepool_base.html" %} 
+{% load thumbnail %}
+{% block image-detail-header %}
+	<div class="container">
+		<div class="post-heading">
+			<h1 class="post-title">{{ imagepool.title }}</h1>
+			<div class="post-edit">
+				<a class="btn btn-default pull-right" href="{% url 'image_upload'%}">
+					<span class="glyphicon glyphicon-cloud-upload"></span>
+				</a>
+				<a class="btn btn-default pull-right" href="{% url 'image_delete' imagepool.pk %}"><span class="glyphicon glyphicon-trash"></span></a>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+	
+{% block image-detail_body %}
+	<div class="image-detail">
+			{% if imagepool.get_next %}
+				<a class="image-next" href='{{ imagepool.get_next }}'><span class="glyphicon glyphicon-chevron-left"></span></a>
+			{% else %}
+				<span class="glyphicon glyphicon-chevron-left disabled"></span>
+			{% endif %}
+			<img class="image-detail-body" src="{{  imagepool.image.url  }}"></a>
+			{% if imagepool.get_prev %}
+				<a class="image-prev" href='{{ imagepool.get_prev }}'><span class="glyphicon glyphicon-chevron-right"></span></a>
+			{% else %}
+				<span class="glyphicon glyphicon-chevron-right disabled"></span>
+			{% endif %}
+	</div>
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends "imagepool_base.html" %} 
+{% load thumbnail %}
+
+{% block image-detail-header %}
+	<div class="post-heading">
+		<h1 class="post-title">Загрузка</h1>
+	</div>
+{%endblock%}
+
+
+	
+{% block image-detail_body %}
+<style type="text/css">
+	/*---------------------Image Upload---------------------*/		
+	
+			.upload-box {
+				border: 1px dashed lightgreen;
+				font-size: 18px;
+				flex: 1 0 auto;
+				min-height:300px;
+				background: #f8f8f8;
+				color:#777;
+				display:flex;
+				flex-flow: column nowrap;
+				align-items:center;
+				justify-content:center;
+			}
+			.upload-box.hover {
+				background: #e6e6e6;
+			}
+			
+			.upload-box.error {
+				background: #faa;
+				border-color: #f00;
+			}
+
+			.upload-box.drop {
+				background: #afa;
+				border-color: #0f0;
+			}
+			
+			.upload-box-form{
+				text-align:center;
+			}
+			
+			.upload-box-button {
+				margin: 5px auto;
+			}
+			
+			.upload_input_container{
+			    overflow: hidden;
+				position: relative;
+				padding:5px 10px;
+				border-radius: 10px;
+				background-color: #ccffcc;
+				cursor: pointer;
+				font-weight: normal;
+			}
+			
+			.upload_input_container:hover{
+				background-color: lightgreen;
+			}
+			
+			.upload_input_container input[type=file]{
+				cursor: inherit;
+				display: block;
+				font-size: 999px;
+				filter: alpha(opacity=0);
+				min-height: 100%;
+				min-width: 100%;
+				opacity: 0;
+				position: absolute;
+				right: 0;
+				text-align: right;
+				top: 0;
+			}
+			
+			.image-upload-progress {
+				height:4px;
+				background-color:#f8f8f8;
+			}
+			.image-upload-progress-bar {
+				height:4px;
+				background-color:blue;
+				width:0%;
+			}
+			
+			
+			.upload-box p, .upload-box label {
+				position: relative;
+			}
+			
+			.uploaded-file {
+				z-index:10;
+				position:absolute;
+			}
+			
+	</style>
+	<form class="upload-box-form" action="{% url 'image_upload' %}" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		<div class="upload-box">
+			
+			<p>Перетащите файл сюда</p>
+			<p>или</p>
+			<label class="upload_input_container">
+				воспользуйтесь загрузчиком
+				<input id="id_file_to_upload" type="file" name="file_to_upload" multiple>
+			</label>
+		</div>
+		<div class="image-upload-progress">
+			<div class="image-upload-progress-bar">
+			
+			</div>
+		</div>
+		<!--<input id="id_file_to_upload" type="file" name="file_to_upload">-->
+		<button class="btn btn-default upload-box-button" type="submit">Загрузить</button>
+	</form>
+{% endblock %}
+
+{% block image-upload-js %}
+	<script type="text/javascript">
+		$(document).ready(function(){
+			//Для некоторых типов запрос прицепить куки к нему
+			function csrfSafeMethod(method) {
+				// these HTTP methods do not require CSRF protection
+				return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+			};
+		
+			var dropZone = $('.upload-box'),
+			maxFileSize = 5000000; // максимальный размер файла - 5 мб.
+			if (typeof(window.FileReader) == 'undefined') { //Поддержка d&d
+				dropZone.text('Не поддерживается браузером!');
+				dropZone.addClass('error');
+			}
+			//The ondragover event occurs when a draggable element or text selection is being dragged over a valid drop target.
+			dropZone[0].ondragover = function() {
+				dropZone.addClass('hover');
+				return false;
+			};
+			//The ondragleave event occurs when a draggable element or text selection leaves a valid drop target.	
+			dropZone[0].ondragleave = function() {
+				dropZone.removeClass('hover');
+				return false;
+			};
+			//The ondrop event occurs when a draggable element or text selection is dropped on a valid drop target.
+			dropZone[0].ondrop = function(event) {
+				event.preventDefault();
+				dropZone.removeClass('hover');
+				dropZone.addClass('drop');
+				var files = event.dataTransfer.files;
+				var formData = new FormData();
+				for (var i = 0; i< files.length; i++) {
+					if (files[i].size <= maxFileSize) {
+						formData.append('file_to_upload',files[i],files[i].name);
+						$(".upload-box").append('<div class="uploaded-file">' + files[i].name + '</div>' )
+					}
+				};
+				
+				var csrftoken = '{{csrf_token}}';//getCookie('csrftoken');	
+
+				$.ajaxSetup({
+					beforeSend: function(xhr, settings) {
+						if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+							xhr.setRequestHeader("X-CSRFToken", csrftoken);
+						}
+					}
+				});
+
+				$.ajax({
+					url:'{% url 'image_upload' %}',
+					data: formData, //{id:id,type:vote_type,action:vote_action}
+					cache: false,
+					contentType: false, //не передавать тип контента
+					processData:false, // не формировать из данных запрос
+					type: 'POST',
+					xhr: //Callback for creating the XMLHttpRequest object. Defaults to the ActiveXObject when available (IE), the XMLHttpRequest otherwise. Override to provide your own implementation for XMLHttpRequest or enhancements to the factory.
+					function() {
+						var xhr = $.ajaxSettings.xhr();
+						$(".image-upload-progress-bar").html = "0%";
+						xhr.upload.onprogress = function(e) {
+							console.log(Math.floor(e.loaded / e.total *100) + '%');
+							$(".image-upload-progress-bar").animate({width: Math.floor(e.loaded / e.total *100) + '%' }, 400);
+						};
+						return xhr;
+					},
+					error: function() {
+						dropZone.removeClass('drop');
+						dropZone.addClass('error');
+						},
+					success: function(response){
+						if (response.status == 1) {
+							//alert(response);
+							setTimeout(function(){
+								location.href = '{% url 'image_index' %} ';
+							},3000);
+						}
+						else {
+							alert(response.message);
+						}
+					}
+				});
+			};
+		});
+	</script>
+{% endblock %}
+ 

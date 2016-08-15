@@ -1,0 +1,59 @@
+{% extends "imagepool_base.html" %} 
+{% load thumbnail %}
+
+{% block image-list-type-selector %}
+	<div class="tab-heading">
+		<a href="#" class="tablinks galery is-active" onclick="openTab('galery')">Галерея</a>
+		<a href="#" class="tablinks album" onclick="openTab('album')">Альбомы</a>
+	</div>
+{% endblock %}	
+
+{% block image-list-bar %}
+	<div id="galery" class="image-list is-active">
+		{% for photo in images %}
+			<div class="image-obj">
+				<a href="{{ photo.get_absolute_url }}">
+				{% thumbnail photo.image "160x200" as thumb %}
+					<img src="{{ thumb.url }}" width="{{ thumb.width }}" height="{{ thumb.height }}" alt="{{ photo.title }}" />
+				{% endthumbnail %}
+					<!--<img class="image-body" src="{{  photo.image.url  }}">-->
+				</a>
+				<div class="image-title">{{ photo.title }}</div>
+			</div>
+		{% empty %}
+			<p>Изображений не найдено</p>
+		{% endfor %}
+	</div>
+
+	<div id="album" class="image-list">
+		{% for album in albums %}
+			<div class="image-obj">
+				<a href="{{ album.get_absolute_url }}">
+				{% thumbnail album.get_cover.image "160x200" as albumcover %}
+					<img src="{{ albumcover.url }}" width="{{ albumcover.width }}" height="{{ albumcover.height }}" alt="{{ album.title }}" />
+				{% endthumbnail %}
+				</a>
+				<div class="image-title">{{ album.title }}</div>
+			</div>
+		{% empty %}
+			<p>Изображений не найдено</p>
+		{% endfor %}
+	</div>
+{% endblock %}
+
+{% block image-list-js %}
+	<script type="text/javascript">
+		tabs=["galery","album"]
+		function openTab(tabName){
+			for (i = 0; i < tabs.length; i++) {
+				if (tabs[i] == tabName) {
+					$("#" + tabs[i]).addClass("is-active");
+					$(".tablinks." + tabs[i]).addClass("is-active");
+				} else {
+					$("#" + tabs[i]).removeClass("is-active");
+					$(".tablinks." + tabs[i]).removeClass("is-active");
+				};
+			};
+		};
+	</script>
+{% endblock %}
