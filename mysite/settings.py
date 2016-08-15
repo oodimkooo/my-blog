@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'taggit',
     'precise_bbcode',
     'redactor',
-    'photologue',
-    'sortedm2m',
     'sorl.thumbnail',
 ]
 
