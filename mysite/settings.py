@@ -65,7 +65,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'myblog/templates/myblog/'),
                  os.path.join(BASE_DIR, 'imagepool/templates/imagepool/'),
-                 os.path.join(PHOTOLOGUE_APP_DIR,'templates/photologue')],
+                ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
