@@ -5,14 +5,23 @@
 	{% block heading %}
 		<div class="container">
 			<div class="post-heading">
+			{% if user.is_authenticated %}
 				<div class="post-rate"> 
 					<button class="btn btn-default btn-xs btn-vote-up"><span class="glyphicon glyphicon-chevron-up vote-up" aria-hidden="true"></span> </button>
 					<span class="current_rating"> 
 						{{ view.rating }}
 					</span>
 					<button class="btn btn-default btn-xs btn-vote-down"><span class="glyphicon glyphicon-chevron-down vote-down" aria-hidden="true"></span></button> 
-				</div>		
-				
+				</div>
+			{% else %}
+				<div class="post-rate"> 
+					<button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-chevron-up vote-up" aria-hidden="true"></span> </button>
+					<span class="current_rating"> 
+						{{ view.rating }}
+					</span>
+					<button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-chevron-down vote-down" aria-hidden="true"></span></button> 
+				</div>			
+			{% endif %}
 				<h1 class="post-title">{{ blogpost.title }}</h1>
 				
 				<div class="post-edit">

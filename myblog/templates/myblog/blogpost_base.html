@@ -432,10 +432,12 @@
 						{% else %}
 							<a id='task-{{ task.pk }}' class="task-title" href="{{ task.get_absolute_url }}">{{ task.title }}</a>
 							<span class="task-id" style="display:none">{{task.pk}}</span>
-							<div class="task-btns pull-right">
-								<a class="glyphicon glyphicon-ok task-complete"></a>
-								<a class="glyphicon glyphicon-remove task-remove"></a>
-							</div>
+							{% if user.is_superuser %}
+								<div class="task-btns pull-right">
+									<a class="glyphicon glyphicon-ok task-complete"></a>
+									<a class="glyphicon glyphicon-remove task-remove"></a>
+								</div>
+							{% endif %}
 						{% endif %}
 						</li>
 					{% endfor %}
