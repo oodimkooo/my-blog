@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-from photologue import PHOTOLOGUE_APP_DIR
+
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'taggit',
     'precise_bbcode',
     'redactor',
+    'sortedm2m',
     'sorl.thumbnail',
 ]
 
