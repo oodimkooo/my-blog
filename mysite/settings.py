@@ -44,10 +44,7 @@ INSTALLED_APPS = [
     'taggit',
     'precise_bbcode',
     'redactor',
-<<<<<<< HEAD
     'sortedm2m',
-=======
->>>>>>> 167d35f218e6fbf207cbd7cb1d0245457edaeb83
     'sorl.thumbnail',
 ]
 
