@@ -6,9 +6,6 @@ from django.core.urlresolvers import reverse
 from django.views.generic import ListView,DetailView,FormView
 from django.template import RequestContext
 from .forms import ImageUploadForm
-
-
-
 import json
 
 # Create your views here.
@@ -35,7 +32,6 @@ class Album_list(ListView):
 class Image_Upload(FormView):
     form_class = ImageUploadForm
     template_name = 'imagepool_upload.html'
-
     def post(self,request,*args,**kwargs):
         #print('Post call')
         form_class = self.get_form_class()
