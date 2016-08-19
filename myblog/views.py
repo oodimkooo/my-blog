@@ -2,7 +2,7 @@
 from django.shortcuts import render,redirect,render_to_response,get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView,DetailView
-from myblog.models import BlogPost,RiderPost,MyTask
+from myblog.models import BlogPost,RiderPost,MyTask,SliderPost
 from myblog.forms import PostForm,RegistrationForm
 from django.template import RequestContext
 from django.contrib.auth import authenticate,login,logout
@@ -25,8 +25,7 @@ from django.contrib.auth.decorators import user_passes_test,login_required
 class PostListView(ListView):
     context_object_name = 'list'
     # для generic вью задавать шаблон явно необязательно, они ожидают найти Model_list (в данном случае)
-    #Опишем шаблон для унификации имен
-    #добавить каталог шаблона в template_dirs
+    # в данном случае щаблон укажем для унификации имен
     template_name = 'blogpost_list.html'
     queryset = BlogPost.objects.all()
     paginate_by = 10
@@ -37,8 +36,11 @@ class PostListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(PostListView,self).get_context_data(**kwargs)
+        # Для доступа к нескольким моделям в рамках представления:
         context['posts'] = BlogPost.objects.all()
+        context['slider_post'] = SliderPost.objects.all()
         context['tasks'] = MyTask.objects.all()
+        context['slider_range'] = range(SliderPost.objects.all().count())
         return context
 
 #Поиск по ключевому слову
@@ -80,8 +82,6 @@ class DraftListView(ListView):
 #Содержимое поста
 class PostDetailView(DetailView):
     model = BlogPost
-    #currentVotesSum = BlogPost.userUpVotes.count() - BlogPost.userDownVotes.count()
-
     def get(self, request, **kwargs):
         self.object = self.get_object()
         if self.request.path != self.object.get_absolute_url():
@@ -89,18 +89,15 @@ class PostDetailView(DetailView):
         else:
             context = self.get_context_data(object=self.object)
             return self.render_to_response(context)
-
     def rating(self):
         self.object = self.get_object()
         postRating = self.object.userUpVotes.all().count() - self.object.userDownVotes.all().count()
         return postRating
-
     def get_context_data(self, **kwargs):
         context = super(PostDetailView,self).get_context_data(**kwargs)
         context['posts'] = BlogPost.objects.all()
         context['tasks'] = MyTask.objects.all()
         return context
-
 
 class TaskDetailView(DetailView):
     model = MyTask
@@ -114,7 +111,6 @@ def register_user(request):
     context = RequestContext(request) #получить контекст запроса для последующего определения типа
     #контекст - словарь с найденными в процессе компиляциии страницы переменными
     registered = False # переменная для проверки успешности регистрации
-
     if request.method == "POST":
         form = RegistrationForm(request.POST)
         if form.is_valid:

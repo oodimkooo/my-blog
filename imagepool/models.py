@@ -5,6 +5,7 @@ from PIL.ExifTags import TAGS
 from io import StringIO
 from os import remove
 
+'''
 def get_exif(smth):
     data = {}
     img = Image.open(smth)
@@ -13,8 +14,8 @@ def get_exif(smth):
         decoded = TAGS.get(tag, tag)
         data[decoded] = value
     return data
+'''
 
-# Create your models here.
 class ImageAlbum(models.Model):
     user = models.ForeignKey(User)
     date_created = models.DateTimeField(verbose_name=u'Дата создания',auto_now_add=True)
@@ -41,16 +42,13 @@ class ImagePool(models.Model):
     date_upload = models.DateTimeField(verbose_name=u'Дата загрузки',auto_now_add=True)
     albumId = models.ForeignKey(ImageAlbum,null=True,blank=True)
     is_cover=models.BooleanField(default=False,verbose_name="Обложка альбома?")
-    #title
-    #exif
     image = models.ImageField(upload_to='imagepool/%Y/%m',verbose_name=u'Изображение',default=None)
-    #meta = get_exif(image.)
 
 
     class Meta:
         ordering = ['user','-date_upload']
-        verbose_name = 'изображение' #имя в админке
-        verbose_name_plural = 'изображения' #имя в админке во множественном числе
+        verbose_name = 'изображение'
+        verbose_name_plural = 'изображения'
 
     def get_absolute_url(self):
         return "/imagepool/%i/" % self.id

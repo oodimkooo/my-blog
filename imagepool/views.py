@@ -33,26 +33,19 @@ class Image_Upload(FormView):
     form_class = ImageUploadForm
     template_name = 'imagepool_upload.html'
     def post(self,request,*args,**kwargs):
-        #print('Post call')
         form_class = self.get_form_class()
         form = self.get_form(form_class)
         files=request.FILES.getlist('file_to_upload')
-        #print(len(files))
         if form.is_valid():
             for i in files:
-                #print('Image uploaded')
                 image = ImagePool(user=request.user, image=i,title = i.name)
                 image.save()
-            #print('Form valid') #Необходимо возвращать объект httpresponse для корректной работы редикрект
-            #return self.form_valid(form)
             response =  {'status':1,'message':"Ok"}
         else:
             print('Form invalid')
             response =  {'status': 0, 'message': "Form invalid"}
 
         return HttpResponse(json.dumps(response),content_type='application/json')
-        #return render(request, 'imagepool/imagepool_upload.html', {'form': form},RequestContext(request))
-
 
 def delete_image(request,pk):
     try:
@@ -60,7 +53,6 @@ def delete_image(request,pk):
         ImagePool.objects.get(pk = pk).delete()
     except ImagePool.DoesNotExist:
         pass
-    #return HttpResponse(json.dumps({'status':1}),content_type='application/json')
     return HttpResponseRedirect('/imagepool/')
 
 

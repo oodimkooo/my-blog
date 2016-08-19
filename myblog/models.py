@@ -9,6 +9,9 @@ from redactor.fields import RedactorField
 
 class BlogPost(models.Model):
     title = models.CharField(max_length= 120)
+    #on_slider = models.BooleanField(default=False,verbose_name=u'На слайдере?')
+    #main_slide = models.BooleanField(default=False,verbose_name=u'Основной слайд?')
+    #background_image = models.ImageField(upload_to='blogpost/sliders/',verbose_name=u'Фон новости',blank=True,null=True)
     #shortcontent = models.TextField(verbose_name=u"Краткое содержание",max_length=1000,blank=True,null=True)
     shortcontent = RedactorField(verbose_name=u"Краткое содержание",max_length=1000,blank=True,null=True)
     #fulltext = models.TextField(verbose_name=u"Полный текст",max_length=10000,blank=True,null=True)
@@ -26,12 +29,8 @@ class BlogPost(models.Model):
     #tags - теги через модуль django-taggit-0.20.1
     tags = TaggableManager(blank=True,verbose_name=u'Теги')
 
-    def __unicode__(self):
-        return str(self.title)
-
-    #для отображения заголовка с писке объектов админки, перенесено в admin
-    #def __str__(self):
-    #    return self.title
+    def __str__(self):
+        return self.title
 
     def get_absolute_url(self):
         return "/blog/%i/" % self.id
@@ -62,7 +61,7 @@ class MyTask(models.Model):
     is_completed = models.BooleanField(default=False,verbose_name="Выполнено?")
     is_deleted = models.BooleanField(default=False,verbose_name="Отменено?")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -81,9 +80,28 @@ class RiderPost(models.Model):
     #foto_path
     #user_fun_groups
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         return "/team/%i/" % self.id
+
+#Для анонсов в слайдере
+class SliderPost(models.Model):
+    title = models.CharField(max_length=120,verbose_name=u"Заголовок")
+    description = models.TextField(verbose_name=u'Краткое описание',max_length=1000,blank=True,null=True)
+    main_post = models.ForeignKey(BlogPost, null=True, blank=True)
+    is_active = models.BooleanField(default=False,verbose_name=u'Заглавный слайд?')
+    creation_date = models.DateTimeField(u'Дата создания', auto_now_add=True)
+
+    def __str__(self):
+        return str(self.title)
+
+    class Meta:
+        ordering = ['-creation_date', ]  # союственно сортировка на страницк
+        verbose_name = 'пост в слайдере'  # имя в админке
+        verbose_name_plural = "посты в слайдере"  # имя в админке во множественном числе
+
+    def get_link_to_post(self):
+        return "/blog/%i/" % self.main_post.id
 
