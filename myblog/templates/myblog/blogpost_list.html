@@ -27,7 +27,7 @@
 						<h1>{{ post.title }}</h1>
 						<p>{{ post.description }}</p>
 						{% if post.main_post %}
-						<p><a class="btn btn-lg btn-primary" href="{{ post.main_post }}" role="button">Перейти</a></p>
+						<p><a class="btn btn-lg btn-primary" href="{{ post.get_link_to_post }}" role="button">Перейти</a></p>
 						{% endif %}
 					</div>
 				</div>
