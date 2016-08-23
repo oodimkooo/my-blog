@@ -3,7 +3,7 @@ from .models import ImagePool,ImageAlbum
 
 # Register your models here.
 class ImagePoolAdmin(admin.ModelAdmin):
-    list_display = ("title","albumId","user","date_upload")
+    list_display = ("title","albumId","user","date_upload","is_commentable")
     search_fields = ("user","title")
 
 class ImageAlbumAdmin(admin.ModelAdmin):
