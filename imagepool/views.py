@@ -38,7 +38,7 @@ class Image_Upload(FormView):
         files=request.FILES.getlist('file_to_upload')
         if form.is_valid():
             for i in files:
-                image = ImagePool(user=request.user, image=i,title = i.name)
+                image = ImagePool(user=request.user, image=i,title = i.name,is_commentable=True)
                 image.save()
             response =  {'status':1,'message':"Ok"}
         else:
