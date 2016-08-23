@@ -1,5 +1,6 @@
 {% extends "imagepool_base.html" %} 
 {% load thumbnail %}
+{% load comments %}
 {% block image-detail-header %}
 	<div class="container">
 		<div class="post-heading">
@@ -15,18 +16,181 @@
 {% endblock %}
 
 	
-{% block image-detail_body %}
+{% block image-detail-body %}
+	<style type="text/css">
+	/*---------------------Image Detail---------------------*/		
+			.image-detail{
+				text-align:center;
+			}
+			.image-next, .image-prev {
+				color: #777;
+				height: auto;
+			}
+			.image-next:hover,.image-prev:hover {
+				color: black;
+				height: auto;
+			}
+			.disabled {
+				color: #777;
+			}		
+			.image-detail-body {
+				max-width:100%;
+				width:auto;
+				height:auto;
+			}
+			
+			.image-detail-footer{
+				margin: 10px 0;
+				border-top:1px solid; 
+				border-bottom:1px solid; 
+				border-color:#bfbfbf; 
+				padding:20px;
+				font: normal 12px/12px 'Arial', sans-serif;
+				display:flex;
+				flex-flow: row nowrap;
+				align-items:center;
+			}
+			.image-detail-footer .image_upload_author {
+				flex: 1 1 auto;
+				text-align:left;
+			}
+			.image-detail-footer .image_upload_date {
+				flex: 1 1 auto;
+				text-align:right;
+			}
+			.image-detail-about {
+				display:flex;
+				flex-flow: row nowrap;
+				align-items:center;
+			}
+			.image-detail-comments {
+				order:1;
+				max-width:100%;
+				width:auto;
+				flex: 12 1 auto;
+			}
+		
+			.image-detail-exif {
+				order:2;
+				flex: 4 1 auto;
+				max-width:25%;
+				width:auto;
+			}
+		/*---------------------Image comments---------------------*/	
+			.image-comment-list{
+				display:flex;
+				flex-flow:column nowrap;
+			}
+			.image-comment {
+				display:flex;
+				flex-flow: row wrap;
+				align-items:center;
+			}
+			.comment-author {
+				flex: 2 1 auto;
+				order:1;
+				text-align:center;
+				width: 100px;
+			}
+			.comment-body {
+				flex: 19 1 auto;
+				background-color:lightgreen;
+				border-radius:5px;
+				padding:10px;
+				order:2;
+				max-width:800px;
+				text-align:left;
+			}
+			.comment-date {
+				flex: 1  1 100%;
+				order:3;
+				text-align:right;
+				font: normal 12px/12px 'Arial', sans-serif;
+				padding:5px;
+			}	
+			.image-comment-form{
+				background-color:#ffcccc;
+				border-radius: 10px;
+				padding: 5px;
+			}
+			.image-comment-form button{
+				margin-top:10px;
+			}
+	</style>
 	<div class="image-detail">
-			{% if imagepool.get_next %}
-				<a class="image-next" href='{{ imagepool.get_next }}'><span class="glyphicon glyphicon-chevron-left"></span></a>
-			{% else %}
-				<span class="glyphicon glyphicon-chevron-left disabled"></span>
-			{% endif %}
-			<img class="image-detail-body" src="{{  imagepool.image.url  }}"></a>
-			{% if imagepool.get_prev %}
-				<a class="image-prev" href='{{ imagepool.get_prev }}'><span class="glyphicon glyphicon-chevron-right"></span></a>
-			{% else %}
-				<span class="glyphicon glyphicon-chevron-right disabled"></span>
-			{% endif %}
+		{% if imagepool.get_next %}
+			<a class="image-next" href='{{ imagepool.get_next }}'><span class="glyphicon glyphicon-chevron-left"></span></a>
+		{% else %}
+			<span class="glyphicon glyphicon-chevron-left disabled"></span>
+		{% endif %}
+			<img class="image-detail-body" src="{{  imagepool.image.url  }}">
+		{% if imagepool.get_prev %}
+			<a class="image-prev" href='{{ imagepool.get_prev }}'><span class="glyphicon glyphicon-chevron-right"></span></a>
+		{% else %}
+			<span class="glyphicon glyphicon-chevron-right disabled"></span>
+		{% endif %}
+		<div class="image-detail-footer">
+			<div class="image_upload_author">{{ imagepool.user }}</div>
+			<div class="image_upload_date">{{ imagepool.date_upload }}</div>
+		</div>
+		
+		<div class="image-detail-about">
+			<div class="image-detail-comments">
+				<div class="image-comment-list">
+					{% get_comment_list for imagepool as comment_list %}
+					{% for comment in comment_list %}
+						<div class="image-comment">
+							<div class="comment-author">{{ comment.user_name }} </div>
+							{% if comment.is_removed %}
+								<div class="comment-body text-muted">Комментарий удален</div>
+							{% else %}
+								<div class="comment-body">{{ comment.comment }}</div>
+							{% endif %}
+							<div class="comment-date">{{ comment.submit_date }}</div>
+						</div>
+					{% endfor %}
+				</div>
+				{% if user.is_authenticated and imagepool.is_commentable %}
+					<div class="image-comment-form">
+						{% get_comment_form for imagepool as form %}
+						<form action="{% comment_form_target %}" method="post">
+							{% csrf_token %}
+							
+							{% for field in form.hidden_fields %}
+								{{ field }}
+							{% endfor %}
+							
+							{% for field in form.visible_fields %}
+									{% if field.errors.count > 0 %}
+										<div class="form-field">
+											<div class="error-list">
+												{{ field.errors }}
+											</div>
+										</div>
+									{% endif %}
+									{% if field.name == "honeypot" %}
+										<div class="form-field">
+											<div style="display:none;">
+												{{ field }}
+											</div>
+										</div>
+									{% elif field.name == "name" or field.name == "email" or field.name == "url" %}
+										{# None #}
+									{% else %}
+										<div class="form-field">
+											<input class="form-control" id ="id_{{ field.name }}" type="text" name = "{{ field.name }}" placeholder="Комментарии?">
+										</div>
+									{% endif %}
+							{% endfor %}
+							<input type="hidden" name="next" value='{{ request.path }}'> <!--Перенаправление на ту же страницу -->
+							<button type="submit" class="save btn btn-success">Отправить</button>
+						</form>
+					</div>
+				{% endif %}
+			</div>
+			<div class="image-detail-exif">
+				exif
+			</div>
+		</div>
 	</div>
 {% endblock %}

@@ -227,41 +227,6 @@
 				background-color: #e0e0eb;
 				border-radius: 5px;
 			}
-		/*---------------------Post comments---------------------*/	
-			.post-comment-form {
-				background-color:#ffcccc;
-				border-radius: 10px;
-				padding: 5px;
-			}
-			.post-comment-form button{
-				margin-top:10px;
-			}
-			.post-comment {
-				display:flex;
-				flex-flow: row wrap;
-				align-items:center;
-			}
-			.comment-author {
-				flex: 1 auto;
-				order:1;
-				text-align:center;
-				width: 100px;
-			}
-			.comment-body {
-				flex: 13 auto;
-				background-color:lightgreen;
-				border-radius:5px;
-				padding:10px;
-				order:2;
-				max-width:600px;
-			}
-			.comment-date {
-				flex: 1 100%;
-				order:3;
-				text-align:right;
-				font: normal 12px/12px 'Arial', sans-serif;
-				padding:5px;
-			}
 	/*---------------------Edit post---------------------*/					
 			
 			#deletemodal {
@@ -439,22 +404,7 @@
 				text-align:center;
 				padding-top:13px;			
 				
-	/*---------------------Image Detail---------------------*/
-			.image-detail{
-				text-align:center;
-			}
-			.image-next, .image-prev {
-				color: #777;
-				height: auto;
-			}
-			.image-next:hover,.image-prev:hover {
-				color: black;
-				height: auto;
-			}
-			.disabled {
-				color: #777;
-			}				
-			
+		
 	/*---------------------Image Upload---------------------*/		
 	
 			.upload-box {
@@ -589,7 +539,7 @@
 	
 		{% endblock %}
 		
-		{% block image-detail_body %}
+		{% block image-detail-body %}
 		
 		{% endblock %}
 		</div>
@@ -650,7 +600,6 @@
 {% block image-upload-js %}
 
 {% endblock %}	
-
 </body>
 </html>
  

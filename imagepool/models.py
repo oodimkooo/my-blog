@@ -4,17 +4,9 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 from io import StringIO
 from os import remove
+from django_comments.moderation import CommentModerator, moderator
 
-'''
-def get_exif(smth):
-    data = {}
-    img = Image.open(smth)
-    tags = img._getexif()
-    for tag, value in tags.items():
-        decoded = TAGS.get(tag, tag)
-        data[decoded] = value
-    return data
-'''
+import exifread
 
 class ImageAlbum(models.Model):
     user = models.ForeignKey(User)
@@ -43,7 +35,7 @@ class ImagePool(models.Model):
     albumId = models.ForeignKey(ImageAlbum,null=True,blank=True)
     is_cover=models.BooleanField(default=False,verbose_name="Обложка альбома?")
     image = models.ImageField(upload_to='imagepool/%Y/%m',verbose_name=u'Изображение',default=None)
-
+    is_commentable = models.BooleanField(default=True, verbose_name="Комментарии")
 
     class Meta:
         ordering = ['user','-date_upload']
@@ -52,6 +44,17 @@ class ImagePool(models.Model):
 
     def get_absolute_url(self):
         return "/imagepool/%i/" % self.id
+
+    def get_exif(self,file=None):
+        try:
+            if file:
+                tags = exifread.process_file(file)
+            else:
+                with self.image.storage.open(self.image.name, 'rb') as file:
+                    tags = exifread.process_file(file, details=False)
+            return tags
+        except:
+            return {}
 
     def delete(self,*args,**kwargs):
         self.image.delete(save = False) #не сохранять файлы физически, удалять вместе с объектом
@@ -65,3 +68,9 @@ class ImagePool(models.Model):
         prev = self.get_previous_by_date_upload()
         return prev.get_absolute_url()
 
+class ImagePoolModerator(CommentModerator):
+    email_notification = False
+    auto_close_field = 'date_upload'
+    enable_field = "is_commentable"
+    close_after = 7
+moderator.register(ImagePool,ImagePoolModerator)
