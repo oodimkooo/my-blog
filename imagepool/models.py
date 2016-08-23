@@ -35,7 +35,7 @@ class ImagePool(models.Model):
     albumId = models.ForeignKey(ImageAlbum,null=True,blank=True)
     is_cover=models.BooleanField(default=False,verbose_name="Обложка альбома?")
     image = models.ImageField(upload_to='imagepool/%Y/%m',verbose_name=u'Изображение',default=None)
-    #is_commentable = models.BooleanField(default=True, verbose_name=u"Комментарии")
+    is_commentable = models.BooleanField(default=True, verbose_name=u"Комментарии")
 
     class Meta:
         ordering = ['user','-date_upload']
