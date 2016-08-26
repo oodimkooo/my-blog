@@ -65,15 +65,16 @@
 			}
 			.image-detail-comments {
 				order:1;
-				max-width:100%;
+				max-width:75%;
 				width:auto;
-				flex: 12 1 auto;
+				flex: 12 0 auto;
 			}
 		
 			.image-detail-exif {
 				order:2;
-				flex: 4 1 auto;
+				flex: 4 0 auto;
 				max-width:25%;
+				min-width:25%
 				width:auto;
 			}
 		/*---------------------Image comments---------------------*/	
@@ -85,21 +86,24 @@
 				display:flex;
 				flex-flow: row wrap;
 				align-items:center;
+				margin: 5px 0px;
 			}
 			.comment-author {
-				flex: 2 1 auto;
+				flex: 2 0 auto;
 				order:1;
 				text-align:center;
-				width: 100px;
+				min-width: 100px;
+				
 			}
 			.comment-body {
-				flex: 19 1 auto;
+				flex: 19 0 auto;
 				background-color:lightgreen;
 				border-radius:5px;
 				padding:10px;
 				order:2;
-				max-width:800px;
 				text-align:left;
+				overflow:auto;
+				max-width:700px;
 			}
 			.comment-date {
 				flex: 1  1 100%;
@@ -112,6 +116,7 @@
 				background-color:#ffcccc;
 				border-radius: 10px;
 				padding: 5px;
+				margin: 5px 0;
 			}
 			.image-comment-form button{
 				margin-top:10px;
