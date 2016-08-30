@@ -25,7 +25,7 @@
 				<div class="container">
 					<div class="carousel-caption">
 						<h1>{{ post.title }}</h1>
-						<p>{{ post.description }}</p>
+						{{ post.description }}
 						{% if post.main_post %}
 						<p><a class="btn btn-lg btn-primary" href="{{ post.get_link_to_post }}" role="button">Перейти</a></p>
 						{% endif %}
