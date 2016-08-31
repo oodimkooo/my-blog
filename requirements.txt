@@ -1,4 +1,4 @@
-Django==1.10 
+Django==1.9 
 Django-taggit==0.20.2
 Django-precise-bbcode==1.2.6
 Pillow==3.3.0
