@@ -3,8 +3,8 @@
 {% load bbcode_tags %}
 {% block heading %}
 
+<!--
 	<div id="myCarousel" class="carousel slide" data-ride="carousel">
-		<!-- Indicators -->
 		<ol class="carousel-indicators">
 		{% for i in slider_range %}
 			{% if i = 0 %}
@@ -42,7 +42,38 @@
 			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
 			<span class="sr-only">Next</span>
 		</a>
-	</div><!-- /.carousel -->
+	</div>
+-->	
+
+<div class="my-carousel">
+    <div class="my-carousel-wrapper">
+		{% for i in slider_range %}
+			{% if i = 1 %}
+			<input type="radio" name="point" id="slide{{ i }}" checked>
+			{% else %}
+			<input type="radio" name="point" id="slide{{ i }}">
+			{% endif %}
+		{% endfor %}	
+		<div class="slider">
+			{% for post in slider_post %}
+			<div class="slides slide{{ post.get_pos_in_object_list }}">
+				<h1 class="slider-title">{{ post.title }}</h1>
+				<p class="slider-desc">{{ post.description }}</p>
+				{% if post.main_post %}
+				<p class="slider-link"><a class="btn btn-lg btn-primary" href="{{ post.get_link_to_post }}" role="button">Перейти</a></p>
+				{% endif %}
+			</div>
+			{% endfor %}
+		</div>	
+		<div class="controls">
+			{% for i in slider_range %}
+			<label for="slide{{ i }}"></label>
+			{% endfor %}	
+		</div>
+    </div>		
+</div>
+
+	
 
 {% endblock %}
 

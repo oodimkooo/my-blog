@@ -103,5 +103,11 @@ class SliderPost(models.Model):
         verbose_name_plural = "посты в слайдере"  # имя в админке во множественном числе
 
     def get_link_to_post(self):
-        return "/blog/%i/" % self.main_post.id
+        if self.main_post:
+            return "/blog/%i/" % self.main_post.id
+        else:
+            return "None"
+
+    def get_pos_in_object_list(self):
+        return SliderPost.objects.filter(id__gt=self.id).count() + 1
 

@@ -40,7 +40,7 @@ class PostListView(ListView):
         context['posts'] = BlogPost.objects.all()
         context['slider_post'] = SliderPost.objects.all()
         context['tasks'] = MyTask.objects.all()
-        context['slider_range'] = range(SliderPost.objects.all().count())
+        context['slider_range'] = range(1,SliderPost.objects.all().count() + 1)
         return context
 
 #Поиск по ключевому слову
