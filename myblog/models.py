@@ -5,6 +5,7 @@ from django_comments.moderation import CommentModerator, moderator
 from taggit.managers import TaggableManager
 from precise_bbcode.fields import BBCodeTextField
 from redactor.fields import RedactorField
+from imagepool import models as imagepool_models
 
 
 class BlogPost(models.Model):
@@ -94,6 +95,8 @@ class SliderPost(models.Model):
     is_active = models.BooleanField(default=False,verbose_name=u'Заглавный слайд?')
     creation_date = models.DateTimeField(u'Дата создания', auto_now_add=True)
 
+    image_link = models.ForeignKey(imagepool_models.ImagePool,blank=True,null=True)
+
     def __str__(self):
         return str(self.title)
 
@@ -110,4 +113,10 @@ class SliderPost(models.Model):
 
     def get_pos_in_object_list(self):
         return SliderPost.objects.filter(id__gt=self.id).count() + 1
+
+    def get_image_link(self):
+        if self.image_link:
+            #return '/imagepool/static' + self.image_link.get_absolute_url() + self.image_link.title
+            return self.image_link.image.url
+
 

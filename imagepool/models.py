@@ -37,6 +37,9 @@ class ImagePool(models.Model):
     image = models.ImageField(upload_to='imagepool/%Y/%m',verbose_name=u'Изображение',default=None)
     is_commentable = models.BooleanField(default=True, verbose_name=u"Комментарии")
 
+    def __str__(self):
+        return str(self.title)
+
     class Meta:
         ordering = ['user','-date_upload']
         verbose_name = 'изображение'
