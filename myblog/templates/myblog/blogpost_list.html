@@ -56,12 +56,14 @@
 		{% endfor %}	
 		<div class="slider">
 			{% for post in slider_post %}
-			<div class="slides slide{{ post.get_pos_in_object_list }}">
-				<h1 class="slider-title">{{ post.title }}</h1>
-				<p class="slider-desc">{{ post.description }}</p>
-				{% if post.main_post %}
-				<p class="slider-link"><a class="btn btn-lg btn-primary" href="{{ post.get_link_to_post }}" role="button">Перейти</a></p>
-				{% endif %}
+			<div class="slides slide{{ post.get_pos_in_object_list }}" style="background-image:url('/media/imagepool/2016/09/Desert.jpg');background-repeat:no-repeat; background-size: 100% auto; background-position: center;">
+				<div class="slide-content">
+					<h1 class="slide-title">{{ post.title }}</h1>
+					<p class="slide-desc">{{ post.description }}</p>
+					{% if post.main_post %}
+					<p class="slide-link"><a class="btn btn-sm btn-primary" href="{{ post.get_link_to_post }}" role="button">Перейти</a></p>
+					{% endif %}
+				</div>
 			</div>
 			{% endfor %}
 		</div>	
@@ -69,7 +71,10 @@
 			{% for i in slider_range %}
 			<label for="slide{{ i }}"></label>
 			{% endfor %}	
+			
 		</div>
+		
+
     </div>		
 </div>
 

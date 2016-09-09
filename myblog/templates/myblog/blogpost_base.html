@@ -178,9 +178,9 @@
 
 			.slides {
 				display:flex;
-				flex-flow: column nowrap;
-				align-items:center;
-				justify-content:center;
+				flex-flow: row nowrap;
+				align-items:flex-end;
+				justify-content:flex-start;
 				height: 100%;
 				opacity: 0;
 				position: absolute;
@@ -195,17 +195,6 @@
 				-o-transition: transform ease-in-out .5s, opacity ease-in-out .5s;
 				transition: transform ease-in-out .5s, opacity ease-in-out .5s;
 			}
-			
-			.slides .slider-title,.slider-desc,.slider-link {
-				flex: 1 1 100%;
-				margin:0;
-			}
-			
-			.slider-title {
-			padding: 10% 0 0 0 ;
-			
-			}
-			
 			#slide1:checked ~ .slider > .slide1,
 			#slide2:checked ~ .slider > .slide2,
 			#slide3:checked ~ .slider > .slide3,
@@ -217,6 +206,26 @@
 				-moz-transform: scale(1);
 				-o-transform: scale(1);
 				transform: scale(1);
+			}
+			
+			.navigation {
+				position:relative;
+				height:inherit;
+				width:inherit;
+			}
+			
+			.slide-content {
+				margin-left:15px;
+				margin-bottom:30px;
+			}
+			
+			.slide-title, .slide-desc {
+				padding: 0 15px;
+				background-color: rgb(255, 255, 255);
+				background-color: rgba(255, 255, 255, 0.5);
+				filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+				-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+
 			}
 
 
