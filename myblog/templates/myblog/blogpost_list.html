@@ -2,6 +2,7 @@
 {% load comments %}
 {% load bbcode_tags %}
 {% block heading %}
+{% load thumbnail %}
 
 <div class="my-carousel">
     <div class="my-carousel-wrapper">
@@ -15,8 +16,10 @@
 		<div class="slider">
 			{% for post in slider_post %}
 			{% if post.image_link %}
+				{% thumbnail post.image_link.image "x300" crop="center" quality=100 as image %}
 				<div class="slides slide{{ post.get_pos_in_object_list }}" 
-				style="background-image:url('{{ post.get_image_link }}');background-repeat:no-repeat; background-size: 100% auto; background-position: center;">
+				style="background-image:url('{{ image.url }}');background-repeat:no-repeat; background-size: 100% auto; background-position: center;">
+				{% endthumbnail %}
 			{% else %}
 				<div class="slides slide{{ post.get_pos_in_object_list }}">
 			{% endif %}
@@ -50,7 +53,7 @@
 	{% for post in object_list %}
 			{% get_comment_count for post as comment_count %}
 			<h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
-			<p>{{ post.shortcontent | safe }}</p>
+			{{ post.shortcontent | safe }}
 			<!--<p>{{ post.pk }}</p>-->
 			<div class="list-post-footer">
 				<ul class="list-inline list-unstyled text-right">

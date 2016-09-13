@@ -116,7 +116,6 @@ class SliderPost(models.Model):
 
     def get_image_link(self):
         if self.image_link:
-            #return '/imagepool/static' + self.image_link.get_absolute_url() + self.image_link.title
             return self.image_link.image.url
 
 
