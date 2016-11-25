@@ -20,7 +20,7 @@ class PostForm(ModelForm):
             'tags': TextInput(attrs={'class': 'form-control'}),
         }
 
-
+'''
 class RegistrationForm(ModelForm):
     password = forms.CharField(widget = forms.PasswordInput())
 
@@ -40,3 +40,4 @@ class RegistrationForm(ModelForm):
             'password': TextInput(attrs={'class': 'form-control'}),
             'email': TextInput(attrs={'class': 'form-control'}),
         }
+'''

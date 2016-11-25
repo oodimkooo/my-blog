@@ -1,121 +1,90 @@
 {% extends "blogpost_base.html" %} 
 {% load comments %}
 {% load bbcode_tags %}
-<div class="mypost">
-	{% block heading %}
-		<div class="container">
-			<div class="post-heading">
-			{% if user.is_authenticated %}
-				<div class="post-rate"> 
-					<button class="btn btn-default btn-xs btn-vote-up"><span class="glyphicon glyphicon-chevron-up vote-up" aria-hidden="true"></span> </button>
-					<span class="current_rating"> 
-						{{ view.rating }}
-					</span>
-					<button class="btn btn-default btn-xs btn-vote-down"><span class="glyphicon glyphicon-chevron-down vote-down" aria-hidden="true"></span></button> 
-				</div>
-			{% else %}
-				<div class="post-rate"> 
-					<button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-chevron-up vote-up" aria-hidden="true"></span> </button>
-					<span class="current_rating"> 
-						{{ view.rating }}
-					</span>
-					<button class="btn btn-default btn-xs"><span class="glyphicon glyphicon-chevron-down vote-down" aria-hidden="true"></span></button> 
-				</div>			
-			{% endif %}
-				<h1 class="post-title">{{ blogpost.title }}</h1>
-				
-				<div class="post-edit">
-					{% if user.is_superuser or user = blogpost.author %}
-						<a class="btn btn-default pull-right" href="{% url 'edit_post' blogpost.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
-						<button class="btn btn-default" data-toggle="modal" data-target=".bs-example-modal-sm" ><span class="glyphicon glyphicon-trash"></span></button>
-						
-						<div id="deletemodal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
-							<div class="modal-dialog modal-sm">
-								<div class="modal-content">
-									<div class="modal-body">
-										<p>Вы действительно хотите удалить запись?</p>
-									</div>
-									<div class="modal-footer">
-										<a class="btn btn-default btn-danger" href="{% url 'delete_post' blogpost.pk %}">Да</a>			
-										<a class="btn btn-default btn-primary">Нет</a>
-									</div>
-								</div> 
-							</div>
-						</div>
-					{% endif %}	
-				</div>	
-			</div>
-		</div>
-	{% endblock %}
 
-	{% block postlist %}	
-		<div class="post-content">
-			<p>{{ blogpost.fulltext | safe }}</p>
+{% block title %}
+	<div class="topbar-detail-content">
+		<div class="container">
+			<span class="topbar-detail-category">{{ blogpost.category }}</span>
+			<h1 class="topbar-detail-title">{{ blogpost.title }}</h1>
+			<div class="topbar-detail-text">{{ blogpost.shortcontent | safe }}</div>
 		</div>
-		{% with names=blogpost.tags.names %}
-			{% if names.count > 0 %}
-				<div class="post-tags">
-					{% for name in names %}
-						<a class="post-tag" href="/blog/search/{{ name }}"> {{ name }} </a>
-					{% endfor %}
-				</div>
-			{% endif %}
-		{% endwith %}		
-		<div class="post-footer">
-			<div class="post_author">{{ blogpost.author }}</div>
-			<div class="post_date">{{ blogpost.creation_date }}</div>
+	</div>
+{% endblock %}
+
+{% block postlist %}
+<div class="post-detail">
+	<div class="post-detail-fulltext">{{ blogpost.fulltext | safe }}</div>
+	{% with names=blogpost.tags.names %}
+	{% if names.count > 0 %}
+	<div class="post-tags">
+		{% for name in names %}
+		<a class="post-tag" href="{% url 'search_by_tag' tag=name %}"> {{ name }} </a>
+		{% endfor %}
+	</div>
+	{% endif %}
+	{% endwith %}		
+	<div class="post-footer">
+		<div class="post_author">{{ blogpost.author }}</div>
+		<div class="post_rating">
+			<button id="vote-down" class="btn btn-default"><span class="glyphicon glyphicon-arrow-down" aria-hidden="true"></span></button>
+			<span id="current_rating"> {{ blogpost.get_post_rating }} </span>
+			<button id="vote-up" class="btn btn-default"><span id="#vote_down" class="glyphicon glyphicon-arrow-up" aria-hidden="true"></span></button>
 		</div>
-		<div class="post-comment-list">
-			{% get_comment_list for blogpost as comment_list %}
-			{% for comment in comment_list %}
-				<div class="post-comment">
-					<div class="comment-author">{{ comment.user_name }} </div>
-					{% if comment.is_removed %}
-						<div class="comment-body text-muted">Комментарий удален</div>
-					{% else %}
-						<div class="comment-body">{{ comment.comment }}</div>
-					{% endif %}
-					<div class="comment-date">{{ comment.submit_date }}</div>
-				</div>
-			{% endfor %}
-		</div>
-		{% if user.is_authenticated and blogpost.is_commentable %}
-			<div class="post-comment-form">
-				{% get_comment_form for blogpost as form %}
-				<form action="{% comment_form_target %}" method="post">
-					{% csrf_token %}
-					
-					{% for field in form.hidden_fields %}
-						{{ field }}
-					{% endfor %}
-					
-					{% for field in form.visible_fields %}
-							{% if field.errors.count > 0 %}
-								<div class="form-field">
-									<div class="error-list">
-										{{ field.errors }}
-									</div>
-								</div>
-							{% endif %}
-							{% if field.name == "honeypot" %}
-								<div class="form-field">
-									<div style="display:none;">
-										{{ field }}
-									</div>
-								</div>
-							{% elif field.name == "name" or field.name == "email" or field.name == "url" %}
-								{# None #}
-							{% else %}
-								<div class="form-field">
-									<input class="form-control" id ="id_{{ field.name }}" type="text" name = "{{ field.name }}" placeholder="Комментарии?">
-								</div>
-							{% endif %}
-					{% endfor %}
-					<input type="hidden" name="next" value='{{ request.path }}'> <!--Перенаправление на ту же страницу -->
-					<button type="submit" class="save btn btn-success">Отправить</button>
-				</form>
+		<div class="post_date">{{ blogpost.creation_date }}</div>
+	</div>
+	<div class="post-comment-list">
+		{% get_comment_list for blogpost as comment_list %}
+		{% for comment in comment_list %}
+			<div class="post-comment">
+				<div class="comment-author">{{ comment.user_name }} </div>
+				{% if comment.is_removed %}
+				<div class="comment-body text-muted">Комментарий удален</div>
+				{% else %}
+				<div class="comment-body">{{ comment.comment }}</div>
+				{% endif %}
+				<div class="comment-date">{{ comment.submit_date }}</div>
 			</div>
-		{% endif %}
+		{% endfor %}
+	</div>
+	{% if user.is_authenticated and blogpost.is_commentable %}
+	<form action="{% comment_form_target %}" method="post">
+		<div class="post-comment-form">
+		{% get_comment_form for blogpost as form %}
+		
+		{% csrf_token %}
+		{% for field in form.hidden_fields %}
+			{{ field }}
+		{% endfor %}
+		{% for field in form.visible_fields %}
+			{% if field.errors.count > 0 %}
+			<div class="form-field">
+				<div class="error-list">
+					{{ field.errors }}
+				</div>
+			</div>
+			{% endif %}
+			{% if field.name == "honeypot" %}
+			<div class="form-field">
+				<div style="display:none;">
+					{{ field }}
+				</div>
+			</div>
+			{% elif field.name == "name" or field.name == "email" or field.name == "url" %}
+			{# None #}
+			{% else %}
+			<div class="form-field comment-input">
+				<input class="form-control" id ="id_{{ field.name }}" type="text" name = "{{ field.name }}" placeholder="Комментарии?">
+			</div>
+			{% endif %}
+		{% endfor %}
+			<input type="hidden" name="next" value='{{ request.path }}'> <!--Перенаправление на ту же страницу -->
+			<button type="submit" class="save btn btn-success">Отправить</button>
+		</div>			
+	</form>
+	{% endif %}
+
+</div>	
 	<script type="text/javascript">
 	$(document).ready(function(){
 		var id = {{ blogpost.pk }}
@@ -124,8 +93,12 @@
 		});
 
 		//Объединить в одну конструкцию
-		$(".btn-vote-up").click(function(){
-			var vote_type = "up"
+		$("#vote-up,#vote-down").click(function(){
+			if ($(this).attr('id') == "vote-up") {
+				var vote_type = "up"
+			} else {
+				var vote_type = "down"
+			}
 			var vote_action = "vote"
 			$.ajax({
 				type: "POST",
@@ -133,32 +106,17 @@
 				context: {csrfmiddlewaretoken: '{{ csrf_token }}'},
 				data: {id:id,type:vote_type,action:vote_action},
 				success: function(response){
-							if ($(".current_rating").html() != response){
-								$(".current_rating").fadeOut(200,function(){
-									$(".current_rating").html(response);
-									$(".current_rating").fadeIn();
+							if ($("#current_rating").html() != response){
+								$("#current_rating").fadeOut(200,function(){
+									$("#current_rating").html(response);
+									$("#current_rating").fadeIn();
 								});											
 							};
 						}
 			});
 		});
-
-		$(".btn-vote-down").click(function(){
-		var vote_type = "down"
-		var vote_action = "vote"
-		$.post(
-			'{% url 'post_vote' blogpost.pk %}',
-			{id:id,type:vote_type,action:vote_action},
-			function(response){
-				//alert(response);
-				$(".current_rating").html(response);		
-				//alert($(".current_rating").html());
-			})
-		});
 	});
 	</script>
-	{% endblock %}
-</div>		
-
+{% endblock %}
 
 

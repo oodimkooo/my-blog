@@ -1,10 +1,10 @@
 {% extends "blogpost_base.html" %}    
 {% load comments %}
 
-{% block heading %}
-	<div class="container">
-		<div class="post-heading">
-			<h1 class="post-title">Результаты поиска:</h1>
+{% block title %}
+	<div class="topbar-detail-content">
+		<div class="container">
+			<h1 class="topbar-detail-title">Результаты поиска</h1>
 		</div>
 	</div>
 {% endblock %}
@@ -13,16 +13,20 @@
 	{% if search_result %}
 		{% for post in search_result %}
 			{% get_comment_count for post as comment_count %}
-			<h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
-			<p>{{ post.shortcontent }}</p>
-			<!--<p>{{ post.pk }}</p>-->
-			<div class="list-post-footer">
-				<ul class="list-inline list-unstyled text-right">
-					<li>{{ post.creation_date }}</li>
-					<li>{{ post.author }}</li>
-					<li class="comment-count">{{ comment_count }}</li>
-				</ul>
-			</div>
+			<div class="post">
+				<span class="post-category"><a href="/blog/categories/{{ post.category }}"> {{ post.category }} </a></span>
+				<div class="post-image">
+					<img src="" alt="">
+				</div>
+				<a class="post-content" href="{{ post.get_absolute_url }}">
+					<h3 class="post-title">{{ post.title }}</h3>
+					<div class="post-descr">{{ post.shortcontent | safe }}</div>
+					<div class="postlist-footer">
+						<p class="postlist-author">{{ post.author }}</p>
+						<p class="postlist-comments">{{ comment_count }}</p>
+					</div>
+				</a>
+			</div>	
 		{% empty %}
 			<p>Статей не обнаружено<p>
 		{% endfor %}
@@ -50,41 +54,5 @@
 	{% endif %}
 {% endblock %}
 
-{% block differentlinks %}
-	{% if user.is_authenticated %}
-		<div class="side-btns">
-			<div class="edit_btns">
-				<a class="addpost glyphicon glyphicon-plus" href="{% url 'myblog.views.add_post'%}"></a>
-				<a class="mydrafts glyphicon glyphicon-ok-sign" href="{% url 'list_draft'%}"></a>
-			</div>
-			<a class='show_add_post glyphicon glyphicon-chevron-right'></a>
-		</div>
-		
-		<script type="text/javascript">
-			$.ajaxSetup({
-				data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
-			});
-			
-			$(".show_add_post").click(function(){
-				$(".addpost").animate({width:"toggle"});
-				$(".mydrafts").animate({width:"toggle"});
-				$(".show_add_post").toggleClass("glyphicon-chevron-right glyphicon-chevron-left");
-			});
-			
-			$(".task-complete").click(function(){
-				task_id = $(this).closest(".task").find(".task-id").html();
-				task_action = 'complete'
-				$.ajax({
-					type: "POST",
-					url: '{% url 'task_action' %}',
-					data: {id:task_id, action:task_action},
-					success: function(response){
-								$(this).closest(".task").find(".task-title").addClass('complete');
-								$(this).closest(".task").find(".task-title").fadeIn();
-								}
-				});
-			});
-		</script>
-	{% endif %}
-{% endblock %}
+
 

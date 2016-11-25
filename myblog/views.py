@@ -2,11 +2,14 @@
 from django.shortcuts import render,redirect,render_to_response,get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView,DetailView
-from myblog.models import BlogPost,RiderPost,MyTask,SliderPost
-from myblog.forms import PostForm,RegistrationForm
+from myblog.models import BlogPost,RiderPost,MyTask,SliderPost,PostCategory
+from myblog.forms import PostForm #,RegistrationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.template import RequestContext
 from django.contrib.auth import authenticate,login,logout
+from django.core.paginator import Paginator,EmptyPage
 from datetime import datetime
+import json
 
 
 #Для поиска
@@ -28,7 +31,7 @@ class PostListView(ListView):
     # в данном случае щаблон укажем для унификации имен
     template_name = 'blogpost_list.html'
     queryset = BlogPost.objects.all()
-    paginate_by = 10
+    paginate_by = 5
 
     def get_queryset(self):
         postlist=super(PostListView,self).get_queryset()
@@ -38,18 +41,82 @@ class PostListView(ListView):
         context = super(PostListView,self).get_context_data(**kwargs)
         # Для доступа к нескольким моделям в рамках представления:
         context['posts'] = BlogPost.objects.all()
-        context['slider_post'] = SliderPost.objects.all()
-        context['tasks'] = MyTask.objects.all()
-        context['slider_range'] = range(1,SliderPost.objects.all().count() + 1)
+        #context['slider_post'] = SliderPost.objects.all()
+        #context['tasks'] = MyTask.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        #context['slider_range'] = range(1,SliderPost.objects.all().count() + 1)
         return context
 
-#Поиск по ключевому слову
-class PostSearchListView(ListView):
+    def post(self, request, *args, **kwargs):
+        form = AuthenticationForm()
+        if request.method == 'POST':
+            form = AuthenticationForm(None, request.POST)
+            if form.is_valid():
+                print('checked CBV post')
+                login(request, form.get_user())
+                response = {'status': 1, 'message': "Ok"}
+                print('OK')
+            else:
+                response = {'status': 0, 'message': "Fail"}
+                print('Fail')
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        return render(request, 'myblog/blogpost_list.html', {'form': form})
+
+class PostDetailView(DetailView):
+    model = BlogPost
+
+    def get(self, request, **kwargs):
+        self.object = self.get_object()
+        if self.request.path != self.object.get_absolute_url():
+            return HttpResponseRedirect(self.object.get_absolute_url())
+        else:
+            context = self.get_context_data(object=self.object)
+            return self.render_to_response(context)
+
+    def rating(self):
+        self.object = self.get_object()
+        postRating = self.object.userUpVotes.all().count() - self.object.userDownVotes.all().count()
+        return postRating
+
+    def get_context_data(self, **kwargs):
+        context = super(PostDetailView, self).get_context_data(**kwargs)
+        context['posts'] = BlogPost.objects.all()
+        # context['tasks'] = MyTask.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        return context
+
+#Поиск
+class CategoryListView(ListView):
     queryset = BlogPost.objects.all()
-    paginate_by = 10
+    paginate_by = 5
+    template_name = 'blogpost_category.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CategoryListView, self).get_context_data(**kwargs)
+        context['posts'] = BlogPost.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        return context
 
     def get_queryset(self):
-        result = super(PostSearchListView, self).get_queryset()
+        category_title = self.kwargs['category']
+        category = PostCategory.objects.select_related().get(title = category_title)
+        postlist = category.blogpost_set.all()
+        return postlist.filter(published_date__isnull = False)
+
+class SearchByTextListView(ListView):
+    queryset = BlogPost.objects.all()
+    paginate_by = 5
+    template_name = 'blogpost_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchByTextListView, self).get_context_data(**kwargs)
+        context['posts'] = BlogPost.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        return context
+
+    def get_queryset(self):
+        result = super(SearchByTextListView, self).get_queryset()
+        print(self.request)
         query = self.request.GET.get('text')
         if query:
             query_list = query.lower().split()
@@ -63,6 +130,21 @@ class PostSearchListView(ListView):
                        (Q(shortcontent__icontains=q) for q in query_list))
             )
         return result
+
+class SearchByTagListView(ListView):
+    queryset = BlogPost.objects.all()
+    paginate_by = 5
+    template_name = 'blogpost_search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(SearchByTagListView, self).get_context_data(**kwargs)
+        context['posts'] = BlogPost.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        return context
+
+    def get_queryset(self):
+        tag = self.kwargs['tag']
+        return BlogPost.objects.filter(tags__name__in=[tag])
 
 #Список черновиков
 class DraftListView(ListView):
@@ -79,26 +161,6 @@ class DraftListView(ListView):
         context['tasks'] = MyTask.objects.all()
         return context
 
-#Содержимое поста
-class PostDetailView(DetailView):
-    model = BlogPost
-    def get(self, request, **kwargs):
-        self.object = self.get_object()
-        if self.request.path != self.object.get_absolute_url():
-            return HttpResponseRedirect(self.object.get_absolute_url())
-        else:
-            context = self.get_context_data(object=self.object)
-            return self.render_to_response(context)
-    def rating(self):
-        self.object = self.get_object()
-        postRating = self.object.userUpVotes.all().count() - self.object.userDownVotes.all().count()
-        return postRating
-    def get_context_data(self, **kwargs):
-        context = super(PostDetailView,self).get_context_data(**kwargs)
-        context['posts'] = BlogPost.objects.all()
-        context['tasks'] = MyTask.objects.all()
-        return context
-
 class TaskDetailView(DetailView):
     model = MyTask
     def get_context_data(self, **kwargs):
@@ -106,7 +168,7 @@ class TaskDetailView(DetailView):
         context['posts'] = BlogPost.objects.all()
         context['tasks'] = MyTask.objects.all()
         return context
-
+'''
 def register_user(request):
     context = RequestContext(request) #получить контекст запроса для последующего определения типа
     #контекст - словарь с найденными в процессе компиляциии страницы переменными
@@ -144,7 +206,7 @@ def login_user(request):
             return HttpResponse("Invalid login details supplied.")
     else:
         return render(request,'myblog/login.html',{},context)
-
+'''
 @login_required
 def logout_user(request):
     logout(request)
@@ -273,7 +335,19 @@ def task_action(request):
         print(task.is_completed)
         return HttpResponse("success")
 
-def search_by_tag(request,tag):
-    posts = BlogPost.objects.filter(tags__name__in = [tag])
-    return render(request,'myblog/blogpost_search.html',{'search_result': posts})
-
+'''
+def ajax_login(request):
+    form = AuthenticationForm()
+    print('ajax call')
+    if request.method == 'POST':
+        form = AuthenticationForm(None, request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            response = {'status': 1, 'message': "Ok"}
+            print('OK')
+        else:
+            response = {'status': 0, 'message': "Fail"}
+            print('Fail')
+        return HttpResponse(json.dumps(response),content_type='application/json')
+    return render(request, 'myblog/blogpost_list.html', {'form' : form})
+'''

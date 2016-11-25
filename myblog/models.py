@@ -8,6 +8,24 @@ from redactor.fields import RedactorField
 from imagepool import models as imagepool_models
 
 
+class PostCategory(models.Model):
+    title = models.CharField(max_length=120,verbose_name=u"Название")
+    description = models.TextField(verbose_name=u"Краткое описание",blank=True,null = False,max_length=2000)
+
+    def __str__(self):
+        return str(self.title)
+
+    class Meta:
+        ordering = ['title']
+        verbose_name = 'категория'
+        verbose_name_plural = 'категории'
+
+    def get_count_of_posts_in(self):
+        return BlogPost.objects.filter(category=self.id).count()
+
+    def get_absolute_url(self):
+        return "/blog/categories/%i" %self.id
+
 class BlogPost(models.Model):
     title = models.CharField(max_length= 120)
     #on_slider = models.BooleanField(default=False,verbose_name=u'На слайдере?')
@@ -22,11 +40,11 @@ class BlogPost(models.Model):
     # отношение один ко многим, возможно стоит добавить on_delete=models.CASCADE
     author = models.ForeignKey(User,null=True,blank=True)
     is_commentable = models.BooleanField(default=True,verbose_name="Комментарии")  # возможность комментировать, логическое
+    category = models.ForeignKey('myblog.PostCategory',null=True,blank=True)
     # related_name - поле для работы со связанным объектом - User
     # По привычке задавал null= True, но получал ворнинг, т.к. "null has no effect since there is no way to require a relationship at the database level."
     userUpVotes = models.ManyToManyField(User, blank=True, related_name='postUpVotes')
     userDownVotes = models.ManyToManyField(User,  blank=True, related_name='postDownVotes')
-
     #tags - теги через модуль django-taggit-0.20.1
     tags = TaggableManager(blank=True,verbose_name=u'Теги')
 
@@ -35,6 +53,10 @@ class BlogPost(models.Model):
 
     def get_absolute_url(self):
         return "/blog/%i/" % self.id
+
+    def get_post_rating(self):
+        postRating = self.userUpVotes.all().count() - self.userDownVotes.all().count()
+        return postRating
 
     #метаданные модели, дополнительные параметры для кастомизации вида или поведения
     class Meta:
@@ -117,5 +139,6 @@ class SliderPost(models.Model):
     def get_image_link(self):
         if self.image_link:
             return self.image_link.image.url
+
 
 

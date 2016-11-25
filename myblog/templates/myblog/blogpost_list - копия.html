@@ -1,0 +1,110 @@
+{% extends "blogpost_base.html" %}    
+{% load comments %}
+{% load bbcode_tags %}
+{% block heading %}
+{% load thumbnail %}
+
+<div class="my-carousel">
+    <div class="my-carousel-wrapper">
+		{% for i in slider_range %}
+			{% if i = 1 %}
+			<input type="radio" name="point" id="slide{{ i }}" checked>
+			{% else %}
+			<input type="radio" name="point" id="slide{{ i }}">
+			{% endif %}
+		{% endfor %}	
+		<div class="slider">
+			{% for post in slider_post %}
+			{% if post.image_link %}
+				{% thumbnail post.image_link.image "x300" crop="center" quality=100 as image %}
+				<div class="slides slide{{ post.get_pos_in_object_list }}" 
+				style="background-image:url('{{ image.url }}');background-repeat:no-repeat; background-size: 100% auto; background-position: center;">
+				{% endthumbnail %}
+			{% else %}
+				<div class="slides slide{{ post.get_pos_in_object_list }}">
+			{% endif %}
+			
+				<div class="slide-content">
+					<h1 class="slide-title">{{ post.title }}</h1>
+					<p class="slide-desc">{{ post.description }}</p>
+					{% if post.main_post %}
+					<p class="slide-link"><a class="btn btn-sm btn-primary" href="{{ post.get_link_to_post }}" role="button">Перейти</a></p>
+					{% endif %}
+				</div>
+			</div>
+			{% endfor %}
+		</div>	
+		<div class="controls">
+			{% for i in slider_range %}
+			<label for="slide{{ i }}"></label>
+			{% endfor %}	
+			
+		</div>
+		
+
+    </div>		
+</div>
+
+	
+
+{% endblock %}
+
+{% block postlist %}
+	{% for post in object_list %}
+			{% get_comment_count for post as comment_count %}
+			<h3><a href="{{ post.get_absolute_url }}">{{ post.title }}</a></h3>
+			{{ post.shortcontent | safe }}
+			<!--<p>{{ post.pk }}</p>-->
+			<div class="list-post-footer">
+				<ul class="list-inline list-unstyled text-right">
+					<li>{{ post.creation_date }}</li>
+					<li>{{ post.author }}</li>
+					<li class="comment-count">{{ comment_count }}</li>
+				</ul>
+			</div>
+		{% empty %}
+			<p>Статей не обнаружено<p>
+	{% endfor %}
+	
+{% endblock %}
+
+
+{% block postlist-paginator %}
+	{% if is_paginated %}
+	<nav class="flex-pagination">
+		<ul class="pager">
+			{% if page_obj.has_previous %}
+			<li class="previous"><a href="?page={{ page_obj.previous_page_number }}"><span aria-hidden="true">&larr;</span> Свежее</a></li>
+			{% else %}
+			<li class="previous disabled"><a><span aria-hidden="true">&larr;</span>Свежее </a></li>
+			{% endif %}
+			
+			{% if page_obj.has_next %}
+			<li class="next"><a href="?page={{ page_obj.next_page_number }}">Старее<span aria-hidden="true">&rarr;</span></a></li>
+			{% else %}
+			<li class="next disabled"><a>Старее<span aria-hidden="true">&rarr;</span></a></li>
+			{% endif %}
+		</ul>
+	</nav>
+	{% endif %}
+{% endblock %}
+
+{% block differentlinks %}
+	{% if user.is_authenticated %}
+		<div class="side-btns">
+			<div class="edit_btns">
+				<a class="addpost glyphicon glyphicon-plus" href="{% url 'myblog.views.add_post'%}"></a>
+				<a class="mydrafts glyphicon glyphicon-ok-sign" href="{% url 'list_draft'%}"></a>
+			</div>
+			<a class='show_add_post glyphicon glyphicon-chevron-right'></a>
+		</div>
+		<script type="text/javascript">
+			$(".show_add_post").click(function(){
+				$(".addpost").animate({width:"toggle"});
+				$(".mydrafts").animate({width:"toggle"});
+				$(".show_add_post").toggleClass("glyphicon-chevron-right glyphicon-chevron-left");
+			});
+		</script>
+	{% endif %}
+{% endblock %}
+
