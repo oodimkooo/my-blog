@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from django.views.generic import ListView,DetailView,FormView
 from django.template import RequestContext
 from .forms import ImageUploadForm
+from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.forms import AuthenticationForm
 import json
 
 # Create your views here.
@@ -18,6 +20,23 @@ class Image_List(ListView):
         context['images'] = ImagePool.objects.all()
         context['albums'] = ImageAlbum.objects.all()
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = AuthenticationForm()
+        if request.method == 'POST':
+            form = AuthenticationForm(None, request.POST)
+            if form.is_valid():
+                print('checked CBV post')
+                login(request, form.get_user())
+                response = {'status': 1, 'message': "Ok"}
+                print('OK')
+            else:
+                response = {'status': 0, 'message': "Fail"}
+                print('Fail')
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        return render(request, 'imagepool/image_index.html', {'form': form})
+
+
 
 class Image_Detail(DetailView):
     model = ImagePool
@@ -55,6 +74,9 @@ def delete_image(request,pk):
         pass
     return HttpResponseRedirect('/imagepool/')
 
+def logout_user(request):
+    logout(request)
+    return HttpResponseRedirect("/imagepool/")
 
 
 

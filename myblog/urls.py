@@ -18,8 +18,6 @@ urlpatterns = [
     url(r'^logout/$', views.logout_user, name='logout'),
     #url(r'^register/$', views.register_user, name='register'),
     url(r'^drafts/$', views.DraftListView.as_view(), name='list_draft'),
-
-
     url(r'^search/(?P<tag>[a-zA-ZА-я0-9]+)/$', views.SearchByTagListView.as_view() ,name='search_by_tag'),
     url(r'^categories/(?P<category>[a-zA-ZА-я0-9]+)/$', views.CategoryListView.as_view() ,name='search_by_category'),
     url(r'^search/$', views.SearchByTextListView.as_view() ,name='search_by_text'),

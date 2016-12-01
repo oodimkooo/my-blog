@@ -233,36 +233,8 @@ def add_post(request):
                 return redirect(BlogPost)
     else:
         form = PostForm()
-
-        #return render_to_response('blog/add_post.html',{'form': form},context_instance=RequestContext(request))
     return render(request,'myblog/add_post.html', {'form': form})
 
-
-# Через name кнопок с типом submit передаем тип действия - опубликовать - пост на главной, сохранить - пост в списке черновиков, назад - редирект на главную
-# @user_passes_test(lambda u: u.is_superuser)
-# def edit_post(request,pk):
-#     post = get_object_or_404(BlogPost, pk=pk)
-#     if request.method == "POST":
-#         if 'my_redirect' in request.POST:
-#             print("Redirect to main")
-#             return HttpResponseRedirect("/blog/")
-#         else:
-#             form = PostForm(request.POST, instance=post)
-#             if form.is_valid():
-#                 post = form.save(commit=False)
-#                 post.author = request.user
-#                 if 'my_publish' in request.POST:
-#                     print("Publish")
-#                     post.published_date = datetime.now()
-#                 post.save()
-#                 print("Save")
-#                 return redirect("detail", pk=post.pk)
-#     else:
-#         form = PostForm(instance=post)
-#     return render(request, 'myblog/add_post.html', {'form': form})
-
-# Несколько оптимизированный вариант, спасибо https://habrahabr.ru/post/105627/
-# Хотя, судя по комментариям тамже, тут не все так однозначно
 @user_passes_test(lambda u: u.is_superuser)
 def edit_post(request,pk):
     post = get_object_or_404(BlogPost, pk=pk)
@@ -281,7 +253,6 @@ def edit_post(request,pk):
 
 @user_passes_test(lambda u: u.is_superuser)
 def delete_post(request,pk):
-    #if request.method == "POST":
     post = get_object_or_404(BlogPost,pk=pk).delete()
     return HttpResponseRedirect('/blog/')
 
@@ -289,15 +260,10 @@ def delete_post(request,pk):
 def post_vote(request,pk):
     post = get_object_or_404(BlogPost,pk=pk)
     print(pk)
-    #filter вернет атрибут объекта для данного юзера
     curUserUpVote = post.userUpVotes.filter(id=request.user.id).count()
     curUserDownVote = post.userDownVotes.filter(id=request.user.id).count()
-    currentVotesSum = post.userUpVotes.count() - post.userDownVotes.count()
-
     vote_type = request.POST.get('type')
     vote_action = request.POST.get('action')
-
-    #print(currentVotesSum)
     if vote_action == "vote":
         print("User votes")
         if curUserUpVote == 0 and curUserDownVote == 0:
@@ -308,11 +274,7 @@ def post_vote(request,pk):
             if (vote_type == 'down'):
                 post.userDownVotes.add(request.user)
                 print("User downvotes")
-    #print(post.userUpVotes.count())
-    #print(post.userDownVotes.count())
-    #print(vote_type)
     currentVotesSum = post.userUpVotes.count() - post.userDownVotes.count()
-    #print(currentVotesSum)
     return HttpResponse(currentVotesSum)
 
 @login_required
@@ -334,20 +296,3 @@ def task_action(request):
         print('Save')
         print(task.is_completed)
         return HttpResponse("success")
-
-'''
-def ajax_login(request):
-    form = AuthenticationForm()
-    print('ajax call')
-    if request.method == 'POST':
-        form = AuthenticationForm(None, request.POST)
-        if form.is_valid():
-            login(request, form.get_user())
-            response = {'status': 1, 'message': "Ok"}
-            print('OK')
-        else:
-            response = {'status': 0, 'message': "Fail"}
-            print('Fail')
-        return HttpResponse(json.dumps(response),content_type='application/json')
-    return render(request, 'myblog/blogpost_list.html', {'form' : form})
-'''

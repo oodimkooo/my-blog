@@ -12,6 +12,72 @@
     <link href= "{% static "imagepool/css/bootstrap.min.css" %}" rel="stylesheet">
 	
 	<style type="text/css">
+		/*-------------auth--------------*/
+		.auth-wrapper {
+			position:fixed;
+			height:100%;
+			width:100%;
+			z-index:9;
+			justify-content:center;
+			align-items:center;
+			background-color:rgba(0, 0, 0,0.5);
+			display:none;
+			transition: display 0.3s;
+		}
+		.auth-modal {
+			margin: auto;
+			width:300px;
+			background-color: #e6e6e6;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+			display:flex;
+			flex-flow:column nowrap;
+		}
+		.auth-modal-switcher {
+			background-color: #d9d9d9;
+			flex: 1 1 100%;
+			height:10%;
+			min-height:40px;
+			display:flex;
+			flex-flow:row nowrap;
+			--padding: 10px 0;
+			align-items:center;
+			justify-content:center;
+		}
+		.signin,.register {
+			flex: 1 1 50%;
+			padding: 10px 0;
+			text-align:center;
+		}
+		.signin:hover,.register:hover {
+			cursor:pointer;
+		}
+		.auth-modal-switcher .active {
+		    -webkit-transition: all 0.25s ease;
+			-moz-transition: all 0.25s ease;
+			-o-transition: all 0.25s ease;
+			transition: all 0.25s ease;
+			background-color: #e6e6e6;
+		}		
+		.auth-modal-content {
+			flex: 1 0 100%;
+			padding: 10px 15px;
+		}
+		.registerform{
+			display:none;
+		}
+		.auth-modal-content .input-group {
+			margin: 10px 0;
+		}
+		.auth-modal-content .btn {
+			width:100%;
+		}		
+		.successresponse {
+			display:none;
+			min-height:60px;
+			align-items:center;
+			justify-content:center;
+			background-color:lightgreen;
+		}	
 	/*---------------------Base---------------------*/						
 			html {
 				height:100%;
@@ -70,26 +136,6 @@
 				padding-top:13px;				
 			}
 			
-	/*---------------------Login/Register---------------------*/						
-			.auth-wrapper {
-				display:flex;
-				flex-flow: column nowrap;
-				justify-content:center;
-				align-items:center;
-				flex: 1 1 auto;
-				order:4;
-			}
-			
-			.auth-content {
-				flex: 1 1 100%;
-				text-align:center;
-				--border: 1px solid;
-			}
-			
-			.auth-content .input-group {
-				padding:10px;
-			}
-			
 	/*---------------------Navbar---------------------*/			
 			.navbar {
 				margin-bottom:0px; !important
@@ -102,30 +148,6 @@
 				width:100%;
 			}
 	
-	/*---------------------Carousel---------------------*/			
-			.carousel {
-				height: 300px;
-				margin-bottom: 10px;
-				flex: 0 1 auto;
-				order: 1;				
-			}
-
-			.carousel-caption {
-				z-index: 10;
-			}
-
-			.carousel .item {
-				height: 300px;
-				background-color: #777;
-			}
-			
-			.carousel-inner > .item > img {
-				position: absolute;
-				top: 0;
-				left: 0;
-				min-width: 100%;
-				height: 300px;
-			}
 	/*---------------------Post list---------------------*/	
 			
 			.flex-main {
@@ -488,12 +510,60 @@
 				z-index:10;
 				position:absolute;
 			}
-			
 	</style>
 	<title>Test</title>
 	
 </head>
 <body>
+{% block auth %}
+<div class="auth-wrapper">
+	<div class="auth-modal">
+		<div class="auth-modal-switcher">
+			<div class="signin active">
+				Login
+			</div>
+			<div class="register">
+				Register
+			</div>
+		</div>
+		<div class="auth-modal-content loginform">
+			<form id="login-form" method="POST" action="{% url 'image_index' %}">
+				{% csrf_token %}
+				<div class="input-group">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+					<input class="form-control" maxlength="30" name="username" type="text" placeholder="Login" /> 
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon"><span class="glyphicon glyphicon-pencil"></span></span>
+					<input class="form-control" maxlength="30" name="password" type="password" placeholder="Password"/>
+				</div>
+				<button class="btn btn-success login-btn">Готово!</button>
+			</form>			
+		</div>
+		<div class="auth-modal-content registerform">
+			<form id="registration-form" method="post" autocomplete="off">
+				{% csrf_token %}
+				<div class="input-group">
+					<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-user"></span></span>
+					<input class="form-control" type="text" name="username" value="" size="50" placeholder="Username"  required />
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon" id="basic-addon1"><span class="glyphicon glyphicon-pencil"></span></span>
+					<input class="form-control" type="password" name="password" value="" size="50" placeholder="password" required/>
+				</div>
+				<div class="input-group">
+					<span class="input-group-addon" id="basic-addon1">@</span>
+					<input  class="form-control" type="email" name="email" value="" size="50" placeholder="Email" required/>
+				</div>			
+				<button class="btn btn-success">Готово!</button>
+			</form>			
+		</div>			
+		<div class="auth-modal-content successresponse">
+			<span class="ok-response">Ok!</span>
+		</div>
+	</div>
+</div>		
+{% endblock %}
 
 <div class="flex-wrapper">
 	<nav class="navbar navbar-default"> 
@@ -506,18 +576,10 @@
 				<p class="navbar-text navbar-left">Menu3</p>
 				
 				{% if not user.is_authenticated %}
-					<span class="navbar-text pull-right">
-						<a href="{% url 'login' %}">Войдите</a> 
-						 или 
-						<a href="{% url 'register' %}">Зарегистрируйтесь</a>
-					</span>
+					<a href="#" class="navbar-text login-link navbar-right">Login</a>
 				{% else %}
-					<ul class="nav navbar-nav pull-right navbar-text">
-						<a>Welcome, {{ user.get_username }}</a>
-						<span class="glyphicon glyphicon-option-vertical"></span>
-						<a href="{% url 'myblog.views.logout_user' %}">Выйти</a>
-					</ul>
-				{% endif %}
+					<a class="navbar-text navbar-right" href="{% url 'logout' %}">Выйти</a>
+				{% endif %}		
 			</div>
 		</div>	
 	{% endblock %}	
@@ -591,6 +653,54 @@
 			$(".show_add_post").toggleClass("glyphicon-chevron-right glyphicon-chevron-left");
 		});
 	</script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			//Модаль форм логина/регистрации			
+			$('.signin').click(function(){
+				$('.registerform').hide();
+				$('.loginform').fadeIn();
+				$(this).addClass('active');
+				$('.register').removeClass('active');
+			});
+			$('.register').click(function(){
+				$('.loginform').hide();
+				$('.registerform').fadeIn();
+				$(this).addClass('active');
+				$('.signin').removeClass('active');
+			});
+//			
+			$('.login-link').click(function(){
+				$('.auth-wrapper').css('display','flex').hide().fadeIn(200);
+			});
+			$('.auth-wrapper').click(function(event){
+				if(!$(event.target).closest('.auth-modal').length) {
+					$('.auth-wrapper').fadeOut();
+				}        
+			});
+//
+			$('#login-form').submit(function(e){ //перехватить обработку формы
+				e.preventDefault(); //Остановить обработку формы и заменить своим обработчиком
+				$.ajax({
+					type: $(this).attr('method'),
+					url: $(this).action,
+					context: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+					data: $(this).serialize(), // преобразовать набор передаваемых параметров в строку
+					success: function(response){
+						$('.loginform').hide();
+						$('.auth-modal-switcher').hide();
+						$('.successresponse').css('display','flex').hide().fadeIn(200);
+						setTimeout(function(){window.location.href = ('{% url 'image_index' %}')}, 200);
+							}
+				});
+			});
+			
+			$('#registration-form').submit(function(e){ //перехватить обработку формы
+				e.preventDefault(); //Остановить обработку формы и заменить своим обработчиком
+				alert('ok');
+			});
+		});	
+	</script>
+	
 {% endblock %}
 
 {% block image-list-js %}
