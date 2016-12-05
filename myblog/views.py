@@ -5,46 +5,28 @@ from django.views.generic import ListView,DetailView
 from myblog.models import BlogPost,RiderPost,MyTask,SliderPost,PostCategory
 from myblog.forms import PostForm #,RegistrationForm
 from django.contrib.auth.forms import AuthenticationForm
-from django.template import RequestContext
 from django.contrib.auth import authenticate,login,logout
-from django.core.paginator import Paginator,EmptyPage
 from datetime import datetime
 import json
-
-
-#Для поиска
 from django.db.models import Q
 import operator
 from functools import reduce
-
-
-#декораторы нужны для "оборачивания" функций с целью изменения их поведения
-#user_passes_test() takes a required argument: a callable that takes a User object and returns True if the user is allowed to view the page
-#The user_passes_test decorator whether the user is admin or not. If not, it will redirect the user to login page
 from django.contrib.auth.decorators import user_passes_test,login_required
 
 
 # Список постов
 class PostListView(ListView):
     context_object_name = 'list'
-    # для generic вью задавать шаблон явно необязательно, они ожидают найти Model_list (в данном случае)
-    # в данном случае щаблон укажем для унификации имен
     template_name = 'blogpost_list.html'
-    queryset = BlogPost.objects.all()
     paginate_by = 5
 
     def get_queryset(self):
-        postlist=super(PostListView,self).get_queryset()
-        return postlist.filter(published_date__isnull = False)
+        return BlogPost.objects.filter(published_date__isnull = False)
 
     def get_context_data(self, **kwargs):
         context = super(PostListView,self).get_context_data(**kwargs)
-        # Для доступа к нескольким моделям в рамках представления:
         context['posts'] = BlogPost.objects.all()
-        #context['slider_post'] = SliderPost.objects.all()
-        #context['tasks'] = MyTask.objects.all()
         context['categories'] = PostCategory.objects.all()
-        #context['slider_range'] = range(1,SliderPost.objects.all().count() + 1)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -81,30 +63,28 @@ class PostDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(PostDetailView, self).get_context_data(**kwargs)
         context['posts'] = BlogPost.objects.all()
-        # context['tasks'] = MyTask.objects.all()
         context['categories'] = PostCategory.objects.all()
         return context
 
-#Поиск
 class CategoryListView(ListView):
-    queryset = BlogPost.objects.all()
-    paginate_by = 5
     template_name = 'blogpost_category.html'
+    paginate_by = 5
 
     def get_context_data(self, **kwargs):
         context = super(CategoryListView, self).get_context_data(**kwargs)
         context['posts'] = BlogPost.objects.all()
         context['categories'] = PostCategory.objects.all()
+        context['selected'] = PostCategory.objects.filter(title=self.kwargs['category'])
+        print (context['selected'])
         return context
 
     def get_queryset(self):
         category_title = self.kwargs['category']
-        category = PostCategory.objects.select_related().get(title = category_title)
-        postlist = category.blogpost_set.all()
-        return postlist.filter(published_date__isnull = False)
+        searched_category = get_object_or_404(PostCategory, title = category_title)
+        result = BlogPost.objects.filter(category__id = searched_category.id).filter(published_date__isnull = False)
+        return result
 
 class SearchByTextListView(ListView):
-    queryset = BlogPost.objects.all()
     paginate_by = 5
     template_name = 'blogpost_search.html'
 
@@ -115,13 +95,12 @@ class SearchByTextListView(ListView):
         return context
 
     def get_queryset(self):
-        result = super(SearchByTextListView, self).get_queryset()
-        print(self.request)
         query = self.request.GET.get('text')
+        print(query)
         if query:
             query_list = query.lower().split()
             #reduce - применить функцию-первый аргумент к списку - второму элементу
-            result = result.filter(
+            result = BlogPost.objects.filter(
                 #Q объекты представляют куски sql в виде python объектов
                 # operator.and_ - стандартная обертка для логических операторов, аналогична return a & b
                 reduce(operator.and_,
@@ -132,7 +111,6 @@ class SearchByTextListView(ListView):
         return result
 
 class SearchByTagListView(ListView):
-    queryset = BlogPost.objects.all()
     paginate_by = 5
     template_name = 'blogpost_search.html'
 
@@ -146,7 +124,6 @@ class SearchByTagListView(ListView):
         tag = self.kwargs['tag']
         return BlogPost.objects.filter(tags__name__in=[tag])
 
-#Список черновиков
 class DraftListView(ListView):
     model = BlogPost
     paginate_by = 10

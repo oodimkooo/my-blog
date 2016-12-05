@@ -4,7 +4,10 @@
 {% block title %}
 	<div class="topbar-detail-content">
 		<div class="container">
-			<h1 class="topbar-detail-title">Результаты поиска</h1>
+		{% with selected|first as category %}
+			<h1 class="topbar-detail-title">{{ category.title }}</h1>
+			<div class="topbar-detail-text">{{ category.description | safe }}</div>			
+		{% endwith %}
 		</div>
 	</div>
 {% endblock %}
@@ -12,6 +15,7 @@
 {% block postlist %}
 		{% for post in object_list %}
 			{% get_comment_count for post as comment_count %}
+			
 			<div class="post">
 				<span class="post-category"><a href="/blog/categories/{{ post.category }}"> {{ post.category }} </a></span>
 				<div class="post-image">
@@ -26,8 +30,6 @@
 					</div>
 				</a>
 			</div>	
-		{% empty %}
-			<p>Статей не обнаружено<p>
 		{% endfor %}
 {% endblock %}
 
