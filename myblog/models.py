@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 from django_comments.moderation import CommentModerator, moderator
 from taggit.managers import TaggableManager
 from precise_bbcode.fields import BBCodeTextField
-from redactor.fields import RedactorField
 from imagepool import models as imagepool_models
+from tinymce import models as tinymce_models
 
 
 class PostCategory(models.Model):
@@ -31,10 +31,8 @@ class BlogPost(models.Model):
     #on_slider = models.BooleanField(default=False,verbose_name=u'На слайдере?')
     #main_slide = models.BooleanField(default=False,verbose_name=u'Основной слайд?')
     #background_image = models.ImageField(upload_to='blogpost/sliders/',verbose_name=u'Фон новости',blank=True,null=True)
-    #shortcontent = models.TextField(verbose_name=u"Краткое содержание",max_length=1000,blank=True,null=True)
-    shortcontent = RedactorField(verbose_name=u"Краткое содержание",max_length=1000,blank=True,null=True)
-    #fulltext = models.TextField(verbose_name=u"Полный текст",max_length=10000,blank=True,null=True)
-    fulltext = RedactorField(verbose_name=u"Полный текст",max_length=10000,blank=True,null=True)
+    shortcontent = models.TextField(verbose_name=u"Краткое содержание",max_length=1000,blank=True,null=True)
+    fulltext = models.TextField(verbose_name=u"Полный текст",max_length=10000,blank=True,null=True)
     creation_date = models.DateTimeField(u'Дата создания',auto_now_add=True)
     published_date = models.DateTimeField(u'Дата публикации',blank=True, null=True)
     # отношение один ко многим, возможно стоит добавить on_delete=models.CASCADE

@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block postlist %}	
+	<div class="post-detail">
 		<form method="POST" class="post-form">
 			{% csrf_token %}
 			 {{ form.as_p }}
@@ -18,5 +19,6 @@
 			<button type="submit" name="my_return" class="save btn btn-danger">Отменить</button>
 			</div>
 		</form>
+	</div>
 {% endblock %}
 	

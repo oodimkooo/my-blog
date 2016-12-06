@@ -4,13 +4,12 @@ from django import forms
 from myblog.models import BlogPost,MyTask
 from django.contrib.auth.models import User
 from taggit.forms import TagField
-
+from tinymce.widgets import TinyMCE
 
 class PostForm(ModelForm):
     tags = TagField(label="Теги")
     class Meta:
         model = BlogPost
-        #исключим поля, отражение которых в форме не обязательно
         exclude = ['author','creation_date','userUpVotes','userDownVotes','published_date']
 
         widgets = {
@@ -19,7 +18,8 @@ class PostForm(ModelForm):
             'fulltext': Textarea(attrs={'class': 'form-control'}),
             'tags': TextInput(attrs={'class': 'form-control'}),
         }
-
+    class Media:
+        js=('/static/myblog/js/tiny_mce/tiny_mce.js','')
 '''
 class RegistrationForm(ModelForm):
     password = forms.CharField(widget = forms.PasswordInput())

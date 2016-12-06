@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'taggit',
     'precise_bbcode',
-    'redactor',
     'sortedm2m',
     'sorl.thumbnail',
+    'tinymce',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -134,10 +134,6 @@ SITE_ID = 1
 STATIC_ROOT = BASE_DIR + '/static/'
 #STATIC_ROOT = '/home/oodimkooo/my-blog'
 STATIC_URL = '/static/'
-
-
-REDACTOR_OPTIONS = {'lang': 'en'}
-REDACTOR_UPLOAD = 'uploads/'
 
 MEDIA_ROOT= BASE_DIR + '/static/media/'
 MEDIA_URL='/media/'

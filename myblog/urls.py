@@ -12,8 +12,8 @@ urlpatterns = [
     url(r'^(?P<pk>\d+)/delete/$', views.delete_post,name='delete_post'),
     url(r'^(?P<pk>\d+)/vote/$', views.post_vote,name='post_vote'),
 
-    url(r'^new/$',views.add_post, name="new_post"),
-    url(r'^(?P<pk>\d+)/edit/$',views.edit_post,{},name='edit_post'),
+    url(r'^new/$',views.AddPostView.as_view(), name="new_post"),
+    url(r'^(?P<pk>\d+)/edit/$',views.EditPostView.as_view(),{},name='edit_post'),
     #url(r'^login/$', views.ajax_login,{}, name='login'),
     url(r'^logout/$', views.logout_user, name='logout'),
     #url(r'^register/$', views.register_user, name='register'),

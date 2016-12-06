@@ -8,3 +8,4 @@ Django-contrib-comments==1.7.2
 Django-sortedm2m== 1.3.2
 ExifRead==2.1.2
 Whitenoise==3.2.1
+Django-tinymce==2.4.0

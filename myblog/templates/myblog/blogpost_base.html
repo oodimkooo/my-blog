@@ -4,10 +4,16 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
 	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-    
-	{% load staticfiles %}
+	{% load static from staticfiles %}
+	{{ postform.media }}
+	<script type = "text/javascript" src="{% static 'myblog/js/tiny_mce/tiny_mce.js' %}"></script> 	
+	<script type="text/javascript">
+        tinyMCE.init({
+                mode: "textareas",
+                theme: "simple"
+        });
+	</script>
     <!-- Bootstrap -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	
@@ -390,6 +396,11 @@
 			background-color:lightgreen;
 		}
 		
+		/*-----add_post-----*/
+		.post-form .mceLayout {
+			width:100% !important; 
+		}
+		
 		@media (max-width:767px) {
 			.main-content {
 				width:100%;
@@ -592,6 +603,27 @@
 				
 				</div>
 				-->
+				{% endblock %}
+				{% block admin-panel %}
+				{% if user.is_authenticated %}
+				<div class=" side-block admin-panel">
+					<ul class="list-group">
+						<a href="{% url 'new_post' %}" class="category-search-link">
+						<li class="list-group-item">
+							Добавить пост
+							<span class="badge"><span class="glyphicon glyphicon-plus-sign"></span></span>
+						</li></a>
+						<li class="list-group-item">
+							Добавить категорию
+							<span class="badge"><span class="glyphicon glyphicon-plus-sign"></span></span>
+						</li>
+						<li class="list-group-item">
+							Мои черновики
+							<span class="badge"><span class="glyphicon glyphicon-list"></span></span>
+						</li>
+					</ul>
+				</div>
+				{% endif %}
 				{% endblock %}
 			</aside>
 		</div>

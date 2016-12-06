@@ -11,6 +11,9 @@ class PostAdmin(admin.ModelAdmin):
     list_display = ("title","shortcontent","creation_date","author")
     #Поля для поиска по объектам
     search_fields = ("author","title")
+    class Media:
+        js=('/static/myblog/js/tiny_mce/tiny_mce.js',
+            '/static/myblog/js/tiny_mce/tiny_mce_init.js')
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("title", "description")

@@ -1,11 +1,12 @@
 # coding: utf8
 from django.shortcuts import render,redirect,render_to_response,get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import ListView,DetailView
-from myblog.models import BlogPost,RiderPost,MyTask,SliderPost,PostCategory
-from myblog.forms import PostForm #,RegistrationForm
+from django.views.generic import ListView,DetailView,CreateView,UpdateView
+from myblog.models import BlogPost,MyTask,PostCategory
+from myblog.forms import PostForm
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import login,logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import datetime
 import json
 from django.db.models import Q
@@ -138,13 +139,6 @@ class DraftListView(ListView):
         context['tasks'] = MyTask.objects.all()
         return context
 
-class TaskDetailView(DetailView):
-    model = MyTask
-    def get_context_data(self, **kwargs):
-        context = super(TaskDetailView,self).get_context_data(**kwargs)
-        context['posts'] = BlogPost.objects.all()
-        context['tasks'] = MyTask.objects.all()
-        return context
 '''
 def register_user(request):
     context = RequestContext(request) #получить контекст запроса для последующего определения типа
@@ -187,19 +181,26 @@ def login_user(request):
 @login_required
 def logout_user(request):
     logout(request)
-    return HttpResponseRedirect("/blog/")
+    return HttpResponseRedirect("list")
 
-#реализуем через самописный view, т.к. данный подход предоставит больше гибкости, в том числе и в шаблонах
-@login_required
-def add_post(request):
-    if request.POST:
-        if 'my_return' in request.POST:
-            print("Redirect to main")
-            return HttpResponseRedirect("/blog/")
-        else:
+class AddPostView(LoginRequiredMixin,CreateView):
+    model = BlogPost
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+    template_name = 'add_post.html'
+    form_class = PostForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AddPostView, self).get_context_data(**kwargs)
+        context['posts'] = BlogPost.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        if request.POST:
             form = PostForm(request.POST)
             if form.is_valid():
-                BlogPost = form.save(commit=False) #не сохранять сразу, т.к. обновится автор
+                BlogPost = form.save(commit=False)  # не сохранять сразу, т.к. обновится автор
                 BlogPost.author = request.user
                 if 'my_publish' in request.POST:
                     print("Publish")
@@ -208,9 +209,14 @@ def add_post(request):
                 form.save_m2m()
                 print("Save")
                 return redirect(BlogPost)
-    else:
-        form = PostForm()
-    return render(request,'myblog/add_post.html', {'form': form})
+        else:
+            form = PostForm()
+        return render(request, 'myblog/add_post.html', {'form': form})
+
+class EditPostView(LoginRequiredMixin,UpdateView):
+    model = BlogPost
+    template_name = 'add_post.html'
+    form_class = PostForm
 
 @user_passes_test(lambda u: u.is_superuser)
 def edit_post(request,pk):
