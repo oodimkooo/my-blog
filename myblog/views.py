@@ -2,8 +2,8 @@
 from django.shortcuts import render,redirect,render_to_response,get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView,DetailView,CreateView,UpdateView
-from myblog.models import BlogPost,MyTask,PostCategory
-from myblog.forms import PostForm
+from myblog.models import BlogPost,PostCategory
+from myblog.forms import PostForm,CategoryForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login,logout
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,7 +15,6 @@ from functools import reduce
 from django.contrib.auth.decorators import user_passes_test,login_required
 
 
-# Список постов
 class PostListView(ListView):
     context_object_name = 'list'
     template_name = 'blogpost_list.html'
@@ -35,13 +34,13 @@ class PostListView(ListView):
         if request.method == 'POST':
             form = AuthenticationForm(None, request.POST)
             if form.is_valid():
-                print('checked CBV post')
+                #print('checked CBV post')
                 login(request, form.get_user())
                 response = {'status': 1, 'message': "Ok"}
-                print('OK')
+                #print('OK')
             else:
                 response = {'status': 0, 'message': "Fail"}
-                print('Fail')
+                #print('Fail')
             return HttpResponse(json.dumps(response), content_type='application/json')
         return render(request, 'myblog/blogpost_list.html', {'form': form})
 
@@ -67,6 +66,22 @@ class PostDetailView(DetailView):
         context['categories'] = PostCategory.objects.all()
         return context
 
+    def post(self, request, *args, **kwargs):
+        form = AuthenticationForm()
+        if request.method == 'POST':
+            form = AuthenticationForm(None, request.POST)
+            if form.is_valid():
+                #print('checked CBV post')
+                login(request, form.get_user())
+                response = {'status': 1, 'message': "Ok"}
+                #print('OK')
+            else:
+                response = {'status': 0, 'message': "Fail"}
+                #print('Fail')
+            return HttpResponse(json.dumps(response), content_type='application/json')
+        return render(request, 'myblog/blogpost_list.html', {'form': form})
+
+
 class CategoryListView(ListView):
     template_name = 'blogpost_category.html'
     paginate_by = 5
@@ -76,7 +91,7 @@ class CategoryListView(ListView):
         context['posts'] = BlogPost.objects.all()
         context['categories'] = PostCategory.objects.all()
         context['selected'] = PostCategory.objects.filter(title=self.kwargs['category'])
-        print (context['selected'])
+        #print (context['selected'])
         return context
 
     def get_queryset(self):
@@ -97,7 +112,7 @@ class SearchByTextListView(ListView):
 
     def get_queryset(self):
         query = self.request.GET.get('text')
-        print(query)
+        #print(query)
         if query:
             query_list = query.lower().split()
             #reduce - применить функцию-первый аргумент к списку - второму элементу
@@ -131,12 +146,12 @@ class DraftListView(ListView):
 
     def get_queryset(self):
         postlist=super(DraftListView,self).get_queryset()
-        return postlist.filter(published_date__isnull = True)
+        return postlist.filter(published_date__isnull = True,author = self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(DraftListView,self).get_context_data(**kwargs)
         context['posts'] = BlogPost.objects.all()
-        context['tasks'] = MyTask.objects.all()
+        context['categories'] = PostCategory.objects.all()
         return context
 
 '''
@@ -181,13 +196,13 @@ def login_user(request):
 @login_required
 def logout_user(request):
     logout(request)
-    return HttpResponseRedirect("list")
+    return HttpResponseRedirect("/blog/")
 
 class AddPostView(LoginRequiredMixin,CreateView):
     model = BlogPost
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
-    template_name = 'add_post.html'
+    template_name = 'blogpost_add_post.html'
     form_class = PostForm
 
     def get_context_data(self, **kwargs):
@@ -215,24 +230,25 @@ class AddPostView(LoginRequiredMixin,CreateView):
 
 class EditPostView(LoginRequiredMixin,UpdateView):
     model = BlogPost
-    template_name = 'add_post.html'
+    template_name = 'blogpost_add_post.html'
     form_class = PostForm
 
-@user_passes_test(lambda u: u.is_superuser)
-def edit_post(request,pk):
-    post = get_object_or_404(BlogPost, pk=pk)
-    form = PostForm(request.POST or None, instance=post)
-    if form.is_valid():
-        post = form.save(commit=False)
-        post.author = request.user
-        if 'my_publish' in request.POST:
-            print("Publish")
-            post.published_date = datetime.now()
-        post.save()
-        form.save_m2m()
-        print("Save")
-        return redirect("detail", pk=post.pk)
-    return render(request, 'myblog/add_post.html', {'form': form})
+    def get_context_data(self, **kwargs):
+        context = super(EditPostView, self).get_context_data(**kwargs)
+        context['posts'] = BlogPost.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        return context
+
+class AddCategoryView(LoginRequiredMixin,CreateView):
+    model = PostCategory
+    template_name = 'blogpost_add_post.html'
+    form_class = CategoryForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AddCategoryView, self).get_context_data(**kwargs)
+        context['posts'] = BlogPost.objects.all()
+        context['categories'] = PostCategory.objects.all()
+        return context
 
 @user_passes_test(lambda u: u.is_superuser)
 def delete_post(request,pk):

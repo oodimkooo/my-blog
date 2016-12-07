@@ -13,6 +13,14 @@
 {% endblock %}
 
 {% block postlist %}
+{% if user.is_authenticated %}
+	{% if user.is_superuser or user = blogpost.author %}
+	<div class="post-action-link">
+		<a href="{% url 'edit_post' blogpost.pk %}" class="edit-post"><span class="glyphicon glyphicon-pencil"></span></a>
+		<a href="#" class="delete-post"><span class="glyphicon glyphicon-remove-circle"></span></a>
+	</div>
+	{% endif %}
+{% endif %}
 <div class="post-detail">
 	<div class="post-detail-fulltext">{{ blogpost.fulltext | safe }}</div>
 	{% with names=blogpost.tags.names %}
@@ -85,6 +93,23 @@
 	{% endif %}
 
 </div>	
+	<script>
+		$('.action-modal').click(function(event){
+			if(!$(event.target).closest('.action-modal-container').length) {
+				$('.action-modal').fadeOut();
+			}        
+		});
+		$(".delete-post").click(function(){
+			$('.action-modal').css('display','flex').hide().fadeIn(200);
+		});
+		$(".action-modal-buttons .btn-success").click(function(){
+			 window.location = "{% url 'delete_post' blogpost.pk %}";
+		});
+		$(".action-modal-buttons .btn-danger").click(function(){
+			$('.action-modal').fadeOut(200);
+		});
+	</script>
+	
 	<script type="text/javascript">
 	$(document).ready(function(){
 		var id = {{ blogpost.pk }}

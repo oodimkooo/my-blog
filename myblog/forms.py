@@ -1,10 +1,7 @@
-#Для создания/редактирования контента без админики
 from django.forms import ModelForm,TextInput,Textarea
-from django import forms
-from myblog.models import BlogPost,MyTask
+from myblog.models import BlogPost,PostCategory
 from django.contrib.auth.models import User
 from taggit.forms import TagField
-from tinymce.widgets import TinyMCE
 
 class PostForm(ModelForm):
     tags = TagField(label="Теги")
@@ -20,6 +17,18 @@ class PostForm(ModelForm):
         }
     class Media:
         js=('/static/myblog/js/tiny_mce/tiny_mce.js','')
+
+class CategoryForm(ModelForm):
+    class Meta:
+        model = PostCategory
+        fields = ['title', 'description']
+        widgets = {
+            'title': TextInput(attrs={'class': 'form-control', 'required': 'true'}),
+            'description': Textarea(attrs={'class': 'form-control'}),
+        }
+    class Media:
+        js = ('/static/myblog/js/tiny_mce/tiny_mce.js', '')
+
 '''
 class RegistrationForm(ModelForm):
     password = forms.CharField(widget = forms.PasswordInput())

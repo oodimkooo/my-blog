@@ -56,7 +56,7 @@
 		}
 		.topbar-detail-title {
 			margin-top:5px;
-			letter-spacing: 10px;
+			letter-spacing: 5px;
 		}
 		.topbar {
 			flex: 1 0 auto;
@@ -310,16 +310,19 @@
 		.categories-list .list-group {
 			margin-bottom:0;
 		}
-		.category-search-link {
+		.sidebar-link {
 			text-decoration:none;
 			color:black;
 		}
-		.category-search-link:hover,.category-search-link:focus {
+		.sidebar-link:hover,.sidebar-link:focus {
 			text-decoration:none;
 			color:black;
 		}
-		.category-search-link li:hover {
+		.category-link li:hover {
 			background-color:#e6e6e6;
+		}
+		.action-link li:hover {
+			background-color:#cce0ff;
 		}
 		
 		.footer{
@@ -401,6 +404,44 @@
 			width:100% !important; 
 		}
 		
+		/*-----post_detail-----*/
+		.post-action-link {
+			position:absolute;
+			margin-top:14px;
+			margin-left:-24px;
+			display:flex;
+			flex-flow:column nowrap;
+		}
+		.post-action-link > a {
+			border-radius: 5px 0 0 5px;
+			padding: 7px;
+			background-color:lightgreen;
+			margin-bottom:2px;
+			color:black;
+			text-decoration:none;
+		}
+		
+		/*-----delete-post-----*/
+		.action-modal {
+			position:fixed;
+			height:100%;
+			width:100%;
+			z-index:9;
+			justify-content:center;
+			align-items:center;
+			background-color:rgba(0, 0, 0,0.5);
+			display:none;
+			transition: display 0.3s;
+		}
+		.action-modal-container {
+			width:300px;
+			margin:auto;
+			padding:10px;
+			text-align:center;
+			background-color: #e6e6e6;
+			box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+		}
+		
 		@media (max-width:767px) {
 			.main-content {
 				width:100%;
@@ -460,13 +501,46 @@
 				flex: 0 1 100%;
 				margin: 5px 10px;
 			}
+			.post-action-link {
+				position:relative;
+				margin:0;
+				padding:0;
+				flex-flow:row nowrap;
+			}
+			.post-action-link > a {
+				margin:5px 2px 2px 2px;
+				flex: 1 1 auto;
+				border-radius:0;
+				background-color:lightgreen;
+				text-align:center;
+			}
+			.post-detail {
+				margin:5px 0px;
+				width:100%;
+			}
 		}
-		@media (min-width:767px) and (max-width:979px) {
+		@media (min-width:767px) and (max-width:1400px) {
 			.main-content {
 				width:100%;
-			}		
+			}	
+			.post-action-link {
+				position:relative;
+				margin:0;
+				padding:0;
+				flex-flow:row nowrap;
+			}
+			.post-action-link > a {
+				margin:5px 2px 2px 2px;
+				flex: 1 1 auto;
+				border-radius:0;
+				background-color:lightgreen;
+				text-align:center;
+			}
+			.post-detail {
+				margin:5px 0px;
+				width:100%;
+			}
 		}
-		@media (min-width:979px) and (max-width:1200px) {}
 		@media (max-width:1200px) {		}
 			
 	</style>
@@ -474,7 +548,15 @@
 	
 </head>
 <body>
-
+	<div class="action-modal">
+		<div class="action-modal-container">
+			<p>Вы действительно хотите удалить пост "{{blogpost.title}}"?</p>
+			<div class="action-modal-buttons">
+				<button class="btn btn-success">Да</button>
+				<button class="btn btn-danger">Нет</button>
+			</div>
+		</div>
+	</div>	
 	{% block auth %}
 	<div class="auth-wrapper">
 		<div class="auth-modal">
@@ -587,7 +669,7 @@
 						<h3>Категории:</h3>
 						<ul class="list-group">
 							{% for cat in categories %}
-							<a href="/blog/categories/{{ cat.title }}" class="category-search-link">
+							<a href="/blog/categories/{{ cat.title }}" class="sidebar-link category-link">
 								<li class="list-group-item">
 									<span class="badge">{{ cat.get_count_of_posts_in }}</span>
 									{{ cat.title }}
@@ -608,19 +690,21 @@
 				{% if user.is_authenticated %}
 				<div class=" side-block admin-panel">
 					<ul class="list-group">
-						<a href="{% url 'new_post' %}" class="category-search-link">
+						<a href="{% url 'new_post' %}" class="sidebar-link action-link">
 						<li class="list-group-item">
 							Добавить пост
 							<span class="badge"><span class="glyphicon glyphicon-plus-sign"></span></span>
 						</li></a>
+						<a href="{% url 'new_category' %}" class="sidebar-link action-link">
 						<li class="list-group-item">
 							Добавить категорию
 							<span class="badge"><span class="glyphicon glyphicon-plus-sign"></span></span>
 						</li>
+						<a href="{% url 'list_draft' %}" class="sidebar-link action-link"> 
 						<li class="list-group-item">
 							Мои черновики
 							<span class="badge"><span class="glyphicon glyphicon-list"></span></span>
-						</li>
+						</li></a>
 					</ul>
 				</div>
 				{% endif %}
@@ -632,6 +716,8 @@
 		
 		</div>
 	</div>
+	
+	
 	
 		
 	
@@ -707,7 +793,7 @@
 			});
 		});
 	</script>		
-	
+
 </body>
 </html>
  

@@ -13,6 +13,6 @@ urlpatterns = [
     url(r'^upload/$', Image_Upload.as_view(), name='image_upload'),
     url(r'^(?P<pk>\d+)/$', Image_Detail.as_view(), name="image_detail"),
     url(r'^(?P<pk>\d+)/delete/$', delete_image, name='image_delete'),
-    url(r'^logout/$', views.logout_user, name='logout'),
+    url(r'^logout/$', views.logout_user, name='imagepool_logout'),
 ]
 
