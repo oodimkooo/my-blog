@@ -42,7 +42,7 @@
 		.quote-text {
 			text-align: center;
 			font-style: italic;
-			margin-bottom: 10px;
+			margin: 10px;
 		}
 		.quote-author {
 			text-align: right;
@@ -61,11 +61,14 @@
 			justify-content: space-between;
 			margin: 10px 20px;
 		}
-		button {
+		button, #tweet  {
 			padding: 5px 10px;
 			border: none;
 			color: white;
 			transition: background 1s;
+		}
+		#tweet {
+			padding: 7px 10px;
 		}
 		#commit {
 			margin-top: 10px;
@@ -91,9 +94,9 @@
 			<input class="quote-pk" type="text" value="{{quote.id}}">
 			<div class="controls">
 				<div class="left-pad"> 
-					<button id="tweet">
+					<a id="tweet" href="">
 						<span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>
-					</button>
+					</a>
 				</div>
 				<div class="right-pad"> 
 					<button id="add">
@@ -130,6 +133,8 @@
 					$(".wrapper").css("background-color", colorsArray[current_color]);
 					$(".myQuote").css("color", colorsArray[current_color]);
 					$("button").css("background-color", colorsArray[current_color]);
+					$("#tweet").css("background-color", colorsArray[current_color]);
+					$('#tweet').attr('href', 'https://twitter.com/intent/tweet?hashtags=quotes&related=freecodecamp&text=' + encodeURIComponent($(".quote-text").html() + $(".quote-author").html()));
 				}
 			};
 
@@ -150,6 +155,7 @@
 			};
 			
 			changeColor();
+			$('#tweet').attr('href', 'https://twitter.com/intent/tweet?hashtags=quotes&related=freecodecamp&text=' + encodeURIComponent($(".quote-text").html() + $(".quote-author").html()));
 
 			$("#next").click(function(){
 				$('.myQuote-add').fadeOut();
@@ -160,13 +166,19 @@
 					context: {csrfmiddlewaretoken: '{{ csrf_token }}'},
 					data: data,
 					dataType: "json",
+					error: function(response){
+						$(".quote-text").html("Err");
+						$(".quote-author").html("");
+						$(".quote-pk").val("");
+					},
 					success: function(response){
 						var myObj = JSON.parse(response);
 						$(".quote-text").html('"' + myObj[0].fields.content + '"');
 						$(".quote-author").html("- " + myObj[0].fields.author);
 						$(".quote-pk").val(myObj[0].pk);
 						changeColor();
-					}						
+					}			
+
 				});
 			})
 
@@ -191,8 +203,10 @@
 						$(".quote-pk").val(myObj[0].pk);
 					}						
 				});				
-
 			})
+
+
+
 		});
 	</script>
 </body>

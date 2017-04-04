@@ -11,15 +11,21 @@ class QuoteView(ListView):
 	template_name = 'quotes.html'
 	
 	def get_context_data(self, **kwargs):
-		context = super(QuoteView, self).get_context_data(**kwargs)
-		context['quote'] = quotesMain.objects.get(pk=choice(sorted([i.pk for i in quotesMain.objects.all()])))
-		return context
+		if quotesMain.objects.count() > 0:
+			context = super(QuoteView, self).get_context_data(**kwargs)
+			context['quote'] = quotesMain.objects.get(pk=choice(sorted([i.pk for i in quotesMain.objects.all()])))
+			return context
+		else: 
+			return False
 
 def get_next_quote(request):
 	if request.method == "GET":
 		current_pk = int(request.GET.get('current_pk'))
-		myObj = quotesMain.objects.filter(pk=choice([i.pk for i in quotesMain.objects.all() if i.pk != current_pk]))
-		return JsonResponse(serializers.serialize('json', myObj), safe = False)
+		if quotesMain.objects.count() > 0:
+			myObj = quotesMain.objects.filter(pk=choice([i.pk for i in quotesMain.objects.all() if i.pk != current_pk]))
+			return JsonResponse(serializers.serialize('json', myObj), safe = False)
+		else:
+			return False
 
 def set_new_quote(request):
 	if request.method == "POST" and request.is_ajax():
