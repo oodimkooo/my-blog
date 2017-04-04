@@ -1,0 +1,200 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="http://code.jquery.com/jquery-latest.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+	{% load static from staticfiles %}
+	<style type="text/css">
+		html, body, .wrapper {
+			height:100%;
+			position:relative;
+			margin:0;
+		}
+		.wrapper {
+			display: flex;
+			flex-flow: column nowrap;
+			justify-content: center;
+			align-items: center;
+			transition: background 1s;
+		}
+		.myQuote,.myQuote-add {
+			height: auto;
+			width: 40%;
+			background-color: white;
+		}
+		.myQuote, #myQuote-add-form {
+			display: flex;
+			flex-flow: column nowrap;	
+			transition: color 1s;	
+		}
+		#myQuote-add-form {
+			margin: 10px 20px;
+		}
+		.myQuote-add {
+			display: none;
+		}
+		.quote-text, .quote-author {
+			font-family: "Times New Roman", Times, serif;
+		}
+		.quote-text {
+			text-align: center;
+			font-style: italic;
+			margin-bottom: 10px;
+		}
+		.quote-author {
+			text-align: right;
+			font-weight: bold;
+			font-size: 1.5em;
+			padding: 0 20%;
+			margin: 0;
+		}
+		.quote-pk {
+			display: none;
+		}
+		.controls {
+			display: flex;
+			flex-flow: row nowrap;
+			align-items: center;
+			justify-content: space-between;
+			margin: 10px 20px;
+		}
+		button {
+			padding: 5px 10px;
+			border: none;
+			color: white;
+			transition: background 1s;
+		}
+		#commit {
+			margin-top: 10px;
+		}
+		.quote-form {
+			border: none;
+			border-bottom: 2px solid gray;
+		}
+		.quote-form:focus {
+    		border-bottom: 2px solid lightblue;
+		}
+		.quote-form:invalid {
+			border-bottom: 2px solid red;	
+		}
+	</style>
+	<title>Test</title>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="myQuote">
+			<h1 class="quote-text">"{{quote.content}}"</h1>
+			<div class="quote-author"> - {{quote.author}}</div>
+			<input class="quote-pk" type="text" value="{{quote.id}}">
+			<div class="controls">
+				<div class="left-pad"> 
+					<button id="tweet">
+						<span class="glyphicon glyphicon-retweet" aria-hidden="true"></span>
+					</button>
+				</div>
+				<div class="right-pad"> 
+					<button id="add">
+						<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+					</button>
+					<button id="next">
+						Next
+					</button>
+				</div>
+			</div>
+		</div>
+		<div class="myQuote-add">
+			<form id="myQuote-add-form" action = "{% url 'set_quotes' %}" method="POST">
+				<label for="input-quote-text">Quote</label>
+				<input class="quote-form" type="text" name="content" id="input-quote-text" required>
+				<label for="input-quote-author">Author</label>
+				<input class="quote-form" type="text" name="author" id="input-quote-author" required>
+				<label for="input-quote-sender">You?</label>
+				<input class="quote-form" type="text" name="publisher" id="input-quote-sender">
+				<button id="commit">Send</button>
+			</form>
+		</div>
+	</div>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			var colorsArray = ['#ff0000','#ff6600','#009933','#0099ff','#0000cc','#9900ff'], current_color = 0;
+			
+			function changeColor(){
+				var temp_color = Math.floor(Math.random() * colorsArray.length);
+				if (temp_color == current_color) {
+					changeColor();
+				} else {
+					current_color = temp_color;
+					$(".wrapper").css("background-color", colorsArray[current_color]);
+					$(".myQuote").css("color", colorsArray[current_color]);
+					$("button").css("background-color", colorsArray[current_color]);
+				}
+			};
+
+			function getCookie(name) {
+				var cookieValue = null;
+				if (document.cookie && document.cookie !== '') {
+					var cookies = document.cookie.split(';');
+					for (var i = 0; i < cookies.length; i++) {
+						var cookie = jQuery.trim(cookies[i]);
+						// Does this cookie string begin with the name we want?
+						if (cookie.substring(0, name.length + 1) === (name + '=')) {
+							cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+							break;
+						}
+					}
+				}
+				return cookieValue;
+			};
+			
+			changeColor();
+
+			$("#next").click(function(){
+				$('.myQuote-add').fadeOut();
+				var data = {"current_pk" : $(".quote-pk").val()};
+				$.ajax({
+					type: "GET",
+					url: "{% url 'get_quotes' %}",
+					context: {csrfmiddlewaretoken: '{{ csrf_token }}'},
+					data: data,
+					dataType: "json",
+					success: function(response){
+						var myObj = JSON.parse(response);
+						$(".quote-text").html('"' + myObj[0].fields.content + '"');
+						$(".quote-author").html("- " + myObj[0].fields.author);
+						$(".quote-pk").val(myObj[0].pk);
+						changeColor();
+					}						
+				});
+			})
+
+			$("#add").click(function(){
+				$('.myQuote-add').fadeIn();
+			})
+
+			$("#myQuote-add-form").submit(function(event ){
+				event.preventDefault();
+				console.log($(this).serialize());
+				$.ajax({
+					headers: { "X-CSRFToken": getCookie("csrftoken") },
+					type: $(this).attr('method'),
+					url: $(this).attr('action'),
+					data: $(this).serialize(),
+					dataType: "json",
+					success: function(response){
+						$('.myQuote-add').fadeOut();
+						var myObj = JSON.parse(response);
+						$(".quote-text").html('"' + myObj[0].fields.content + '"');
+						$(".quote-author").html("- " + myObj[0].fields.author);
+						$(".quote-pk").val(myObj[0].pk);
+					}						
+				});				
+
+			})
+		});
+	</script>
+</body>
+</html>
+ 

@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^imagepool/', include('imagepool.urls')),
     url(r'^redactor/', include('redactor.urls')),
     url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^quotes/', include('quote_machine.urls')),
         ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

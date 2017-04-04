@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'myblog',
     'imagepool',
+    'quote_machine',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sites',
@@ -65,6 +66,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'myblog/templates/myblog/'),
                  os.path.join(BASE_DIR, 'imagepool/templates/imagepool/'),
+                 os.path.join(BASE_DIR, 'quote_machine/templates/quote_machine/')
                 ],
         'APP_DIRS': True,
         'OPTIONS': {

@@ -310,6 +310,10 @@
 		.categories-list .list-group {
 			margin-bottom:0;
 		}
+		.categories-list .list-group .list-group-item {
+			display: flex;
+			flex-flow: row nowrap;
+		}
 		.sidebar-link {
 			text-decoration:none;
 			color:black;
@@ -692,7 +696,7 @@
 					<ul class="list-group">
 						<a href="{% url 'new_post' %}" class="sidebar-link action-link">
 						<li class="list-group-item">
-							Добавить пост
+							<span class="title">Добавить пост</span>
 							<span class="badge"><span class="glyphicon glyphicon-plus-sign"></span></span>
 						</li></a>
 						<a href="{% url 'new_category' %}" class="sidebar-link action-link">
