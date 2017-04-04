@@ -185,7 +185,6 @@
 						$(".quote-pk").val(myObj[0].pk);
 						changeColor();
 					}			
-
 				});
 			})
 
@@ -195,7 +194,6 @@
 
 			$("#myQuote-add-form").submit(function(event ){
 				event.preventDefault();
-				console.log($(this).serialize());
 				$.ajax({
 					headers: { "X-CSRFToken": getCookie("csrftoken") },
 					type: $(this).attr('method'),
@@ -208,6 +206,7 @@
 						$(".quote-text").html('"' + myObj[0].fields.content + '"');
 						$(".quote-author").html("- " + myObj[0].fields.author);
 						$(".quote-pk").val(myObj[0].pk);
+						$('#myQuote-add-form')[0].reset();
 					}						
 				});				
 			})
