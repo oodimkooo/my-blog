@@ -1,12 +1,9 @@
 from django.shortcuts import render
-from django.http import HttpResponse,HttpResponseRedirect,HttpRequest
-from django.core.paginator import Paginator,InvalidPage
+from django.http import HttpResponse,HttpResponseRedirect
 from imagepool.models import ImagePool,ImageAlbum
-from django.core.urlresolvers import reverse
 from django.views.generic import ListView,DetailView,FormView
-from django.template import RequestContext
 from .forms import ImageUploadForm
-from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth import login,logout
 from django.contrib.auth.forms import AuthenticationForm
 import json
 

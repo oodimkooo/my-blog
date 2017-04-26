@@ -1,0 +1,14 @@
+<form id="eventCreation" action="{% url 'set_event' %}" method="POST">
+	{% csrf_token %}
+	<div class="form-title">Event creation</div>
+	<label for="input-event-title">Title</label>
+	<input class="event-form {% if field.errors %} has-error{% endif %}" type="text" name="title" id="input-event-title" value="">
+	<label for="input-event-description">Description</label>
+	<input class="event-form {% if field.errors %} has-error{% endif %}" type="text" name="description" id="input-event-description" value="">
+	<label for="input-event-startdate">Start time</label>
+	<input class="event-form {% if field.errors %} has-error{% endif %}" type="text" name="startDate" id="input-event-startdate" value="">
+	<label for="input-event-enddate">End time</label>
+	<input class="event-form {% if field.errors %} has-error{% endif %}" type="text" name="endDate" id="input-event-enddate" value ="">	
+	<button type="submit" id="commit">Commit</button>
+</form>
+

@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'myblog',
     'imagepool',
     'quote_machine',
+    'booking',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.sites',
@@ -66,7 +67,8 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'myblog/templates/myblog/'),
                  os.path.join(BASE_DIR, 'imagepool/templates/imagepool/'),
-                 os.path.join(BASE_DIR, 'quote_machine/templates/quote_machine/')
+                 os.path.join(BASE_DIR, 'quote_machine/templates/quote_machine/'),
+                 os.path.join(BASE_DIR, 'booking/templates/booking/')
                 ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -134,7 +136,6 @@ SITE_ID = 1
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_ROOT = BASE_DIR + '/static/'
-#STATIC_ROOT = '/home/oodimkooo/my-blog'
 STATIC_URL = '/static/'
 
 MEDIA_ROOT= BASE_DIR + '/static/media/'
